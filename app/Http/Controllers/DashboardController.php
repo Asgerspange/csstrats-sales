@@ -14,7 +14,7 @@ class DashboardController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
         // Try to cache dashboard data for 5 minutes to reduce Stripe API calls
         $now = Carbon::now();
-        $dashboardData = cache()->remember('dashboard_data', 300100, function () use ($now) {
+        $dashboardData = cache()->remember('dashboard_data', 60, function () use ($now) {
             $startOfThisMonth = $now->copy()->startOfMonth();
             $startOfLastMonth = $now->copy()->subMonth()->startOfMonth();
             $endOfLastMonth = $now->copy()->subMonth()->endOfMonth();
