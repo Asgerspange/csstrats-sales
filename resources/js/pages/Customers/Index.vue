@@ -20,7 +20,9 @@
     ];
 
     const filters = ref({
-        searchTerm: ''
+        searchTerm: '',
+        subscribedOnly: false,
+        currencies: [{ currency: 'usd', active: true }, { currency: 'eur', active: true }]
     });
 
     const columns = ref([
@@ -80,8 +82,11 @@
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <CustomerFilters :filters :columns />
-            <CustomerTable :filters="filters" :columns="columns" />
+            <CustomerFilters 
+                v-model:filters="filters" 
+                v-model:columns="columns" 
+                />
+            <CustomerTable :filters :columns />
         </div>
     </AppLayout>
 </template>

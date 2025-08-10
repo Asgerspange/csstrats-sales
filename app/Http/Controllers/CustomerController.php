@@ -10,14 +10,19 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        $firstCustomer = Customer::with('user')->first();
-
         $customers = cache()->remember('customers.index', 60, function () {
             return Customer::with('user', 'subscriptions')->get();
         });
 
         return Inertia::render('Customers/Index', [
             'customers' => $customers,
+        ]);
+    }
+
+    public function show(Customer $customer)
+    {
+        return Inertia::render('Customers/Show', [
+            'customer' => $customer->load('user', 'subscriptions'),
         ]);
     }
 }
