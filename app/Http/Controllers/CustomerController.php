@@ -10,7 +10,7 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = cache()->remember('customers.index', 60, function () {
+        $customers = cache()->remember('customers.index', now()->addMinutes(60), function () {
             return Customer::with('user', 'subscriptions')->get();
         });
 
@@ -21,7 +21,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer = cache()->remember("customers.show.{$customer->cus_id}", 60, function () use ($customer) {
+        $customer = cache()->remember("customers.show.{$customer->cus_id}", now()->addMinutes(60), function () use ($customer) {
             return $customer->load('user', 'subscriptions', 'invoices');
         });
         return Inertia::render('Customers/Show', [
