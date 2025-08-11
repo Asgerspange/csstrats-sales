@@ -55,12 +55,6 @@
             'header': 'Currency',
             'active': true,
             'direction': 'asc'
-        },
-        {
-            'column': 'created',
-            'header': 'Created At',
-            'active': true,
-            'direction': 'asc'
         }
     ])
 </script>

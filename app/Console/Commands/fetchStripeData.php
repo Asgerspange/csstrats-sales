@@ -5,11 +5,12 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Customer as CustomerModel;
 use App\Models\Subscription as SubscriptionModel;
-use App\Models\SubscriptionItem as SubscriptionItemModel;
+use App\Models\invoices as InvoicesModel;
 use Stripe\Stripe;
 use Stripe\Subscription;
 use Stripe\SubscriptionItem;
 use Stripe\Customer;
+use Stripe\Invoice;
 
 class fetchStripeData extends Command
 {
@@ -35,7 +36,8 @@ class fetchStripeData extends Command
         Stripe::setApiKey(config('services.stripe.secret'));
 
         // $this->getCustomers();
-        $this->getSubscriptions();
+        //$this->getSubscriptions();
+        $this->getInvoices();
     }
 
     private function getCustomers()
@@ -158,5 +160,67 @@ class fetchStripeData extends Command
         }
 
         $this->info('Subscriptions inserted successfully.');
+    }
+
+    private function getInvoices()
+    {
+        $allInvoices = [];
+        $hasMore = true;
+        $startingAfter = null;
+
+        while ($hasMore) {
+            $params = ['limit' => 100];
+            if ($startingAfter) {
+                $params['starting_after'] = $startingAfter;
+            }
+            $response = \Stripe\Invoice::all($params);
+            foreach ($response->data as $invoice) {
+                $allInvoices[] = $invoice;
+            }
+            $hasMore = $response->has_more;
+            if ($hasMore && count($response->data) > 0) {
+                $startingAfter = end($response->data)->id;
+            }
+        }
+
+        $this->info('Total invoices fetched: ' . count($allInvoices));
+        $this->info('Inserting invoices into the database...');
+
+        foreach ($allInvoices as $invoice) {
+            $existing = InvoicesModel::where('invoice_id', $invoice->id)->first();
+
+            $data = [
+                'billing_reason' => $invoice->billing_reason,
+                'collection_method' => $invoice->collection_method,
+                'currency' => $invoice->currency,
+                'customer' => $invoice->customer,
+                'discounts' => $invoice->discounts,
+                'invoice_pdf' => $invoice->invoice_pdf,
+                'data' => $invoice->lines['data'],
+                'sub_id' => $invoice->parent['subscription_details']['subscription'] ?? null,
+                'subtotal' => $invoice->subtotal,
+                'subtotal_excluding_tax' => $invoice->subtotal_excluding_tax,
+                'status_transitions' => $invoice->status_transitions,
+                'created' => $invoice->created
+            ];
+
+            if ($existing) {
+                $needsUpdate = false;
+                foreach ($data as $key => $value) {
+                    if ($existing->$key != $value) {
+                        $needsUpdate = true;
+                        break;
+                    }
+                }
+
+                if ($needsUpdate) {
+                    $existing->update($data);
+                }
+            } else {
+                InvoicesModel::create(array_merge(['invoice_id' => $invoice->id], $data));
+            }
+        }
+
+        $this->info('Invoices inserted successfully.');
     }
 }

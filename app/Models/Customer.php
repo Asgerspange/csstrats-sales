@@ -47,4 +47,9 @@ class Customer extends Model
     {
         return $this->subscriptions()->where('status', 'active')->exists();
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class, 'customer', 'cus_id');
+    }
 }
