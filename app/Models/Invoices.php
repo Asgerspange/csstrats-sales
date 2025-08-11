@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Invoices extends Model
+{
+    public $timestamps = false;
+    protected $fillable = [
+        'invoice_id',
+        'billing_reason',
+        'collection_method',
+        'currency',
+        'customer',
+        'discounts',
+        'invoice_pdf',
+        'data',
+        'sub_id',
+        'subtotal',
+        'subtotal_excluding_tax',
+        'status_transitions',
+        'created'
+    ];
+
+    protected $table = 'invoices';
+    protected $casts = [
+        'data' => 'array',
+        'discounts' => 'array',
+        'status_transitions' => 'array',
+        'created' => 'datetime',
+    ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer', 'cus_id');
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class, 'sub_id', 'sub_id');
+    }
+}
