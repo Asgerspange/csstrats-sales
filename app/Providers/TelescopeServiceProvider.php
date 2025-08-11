@@ -63,4 +63,18 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             return $user && $user->is_admin;
         });
     }
+
+     /**
+     * Override this method to register routes with 'auth' middleware.
+     */
+    protected function registerRoutes(): void
+    {
+        $this->app['router']->group([
+            'prefix' => 'telescope',
+            'middleware' => ['web', 'auth'],  // add auth middleware here
+            'namespace' => 'Laravel\Telescope\Http\Controllers',
+        ], function () {
+            require base_path('vendor/laravel/telescope/routes/telescope.php');
+        });
+    }
 }

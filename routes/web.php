@@ -9,7 +9,6 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::get('customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('customers.index');
     Route::get('customers/{customer}', [App\Http\Controllers\CustomerController::class, 'show'])->name('customers.show');
 
-
     Route::post('clear-cache', function () {
         cache()->flush();
     })->name('clear-cache');
