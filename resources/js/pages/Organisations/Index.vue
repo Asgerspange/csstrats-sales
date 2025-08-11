@@ -66,12 +66,12 @@
 </script>
 
 <template>
-    <Head title="Customers" />
+    <Head title="Organisations" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold">Customers</h1>
+                <h1 class="text-2xl font-bold">Organisations</h1>
                 <div class="flex gap-4">
                     <CreateOrganisationDialog />
                     <DropdownMenu>
