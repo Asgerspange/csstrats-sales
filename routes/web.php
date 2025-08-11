@@ -10,6 +10,7 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::get('customers/{customer}', [App\Http\Controllers\CustomerController::class, 'show'])->name('customers.show');
 
     Route::post('clear-cache', function () {
+        \Log::info('Cache cleared by admin user');
         cache()->flush();
     })->name('clear-cache');
 });
