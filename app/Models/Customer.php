@@ -21,7 +21,6 @@ class Customer extends Model
         'invoice_settings',
         'metadata',
         'name',
-        'phone',
         'subscribed'
     ];
 

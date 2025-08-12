@@ -10,5 +10,15 @@ use Illuminate\Database\Eloquent\{
 class Organisation extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'cvr', 'country', 'address', 'type', 'zip'];
+    protected $fillable = ['name', 'cvr', 'country', 'address', 'type', 'zip', 'cus_id'];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'cus_id', 'id');
+    }
+
+    public function contacts()
+    {
+        return $this->hasMany(OrganisationContact::class);
+    }
 }

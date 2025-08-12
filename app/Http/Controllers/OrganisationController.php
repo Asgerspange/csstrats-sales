@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organisation;
+use App\Models\{
+    Organisation,
+    Customer,
+    OrganisationContact
+};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,8 +21,25 @@ class OrganisationController extends Controller
 
     public function show(Organisation $organisation)
     {
+        $organisation = cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer', 'contacts.customer');
+        });
+
+        $cachedCustomers = cache()->remember('customers.index', now()->addMinutes(60), function () {
+            $customers =  Customer::with('user', 'subscriptions')->get();
+
+            return $customers->map(function ($customer) {
+                return [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                ];
+            })->values()->all();
+        });
+
         return Inertia::render('Organisations/Show', [
             'organisation' => $organisation,
+            'customers' => $cachedCustomers,
         ]);
     }
 
@@ -51,6 +72,60 @@ class OrganisationController extends Controller
 
         return response()->json([
             'message' => 'Organisation deleted successfully',
+        ]);
+    }
+
+    public function changeCustomer(Request $request, Organisation $organisation)
+    {
+        $validatedData = $request->validate([
+            'cus_id' => 'required|exists:customers,id',
+        ]);
+
+        OrganisationContact::updateOrCreate(
+            [
+            'organisation_id' => $organisation->id,
+            'cus_id' => $organisation->cus_id,
+            ],
+            [
+            'cus_id' => $validatedData['cus_id'],
+            ]
+        );
+
+        $organisation->cus_id = $validatedData['cus_id'];
+        $organisation->save();
+
+        cache()->forget("organisations.show.{$organisation->id}");
+        cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer');
+        });
+
+        return response()->json([
+            'message' => 'Customer changed successfully',
+            'organisation' => $organisation,
+        ]);
+    }
+
+    public function makePrimaryContact(Request $request, Organisation $organisation)
+    {
+        $validatedData = $request->validate([
+            'contact_id' => 'required|exists:organisation_contacts,id',
+        ]);
+
+        OrganisationContact::where('organisation_id', $organisation->id)
+            ->update(['is_primary' => false]);
+
+        $contact = OrganisationContact::findOrFail($validatedData['contact_id']);
+        $contact->is_primary = true;
+        $contact->save();
+
+        cache()->forget("organisations.show.{$organisation->id}");
+        cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer', 'contacts.customer');
+        });
+
+        return response()->json([
+            'message' => 'Primary contact updated successfully',
+            'organisation' => $organisation,
         ]);
     }
 }

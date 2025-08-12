@@ -28,7 +28,11 @@
     const filters = ref({
         searchTerm: '',
         danishOnly: false,
-        countries: [...props.organisations.map(org => ({ country: org.country, active: true }))]
+        countries: [
+            ...Array.from(
+                new Set(props.organisations.map(org => org.country))
+            ).map(country => ({ country, active: true }))
+        ]
     });
 
     const columns = ref([

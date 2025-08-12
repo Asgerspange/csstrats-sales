@@ -78,8 +78,7 @@ class fetchStripeData extends Command
                 'invoice_prefix' => $customer->invoice_prefix,
                 'invoice_settings' => $customer->invoice_settings,
                 'metadata' => $customer->metadata,
-                'name' => $customer->name,
-                'phone' => $customer->phone,
+                'name' => $customer->name
             ];
 
             if ($existing) {

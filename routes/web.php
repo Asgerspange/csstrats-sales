@@ -15,6 +15,9 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::post('organisations', [App\Http\Controllers\OrganisationController::class, 'store'])->name('organisations.store');
     Route::delete('organisations/{organisation}', [App\Http\Controllers\OrganisationController::class, 'destroy'])->name('organisations.destroy');
 
+    Route::post('organisations/{organisation}/change-customer', [App\Http\Controllers\OrganisationController::class, 'changeCustomer'])->name('organisations.change-customer');
+    Route::post('organisations/{organisation}/make-primary-contact', [App\Http\Controllers\OrganisationController::class, 'makePrimaryContact'])->name('organisations.make-primary-contact');
+
     Route::post('clear-cache', function () {
         \Log::info('Cache cleared by admin user');
         cache()->flush();
