@@ -38,6 +38,9 @@
     const updateCustomer = () => {
         let customer = props.organisation.customer;
         if (customer) {
+            // Store the original customer ID before making the API call
+            const originalCustomerId = originalCustomer?.id;
+            
             fetch(`/organisations/${props.organisation.id}/change-customer`, {
                 method: 'POST',
                 headers: {
@@ -47,12 +50,22 @@
                 body: JSON.stringify({ cus_id: customer.id }),
             }).then(response => {
                 if (response.ok) {
+                    // Remove original customer from contacts if it exists
+                    if (originalCustomerId) {
+                        props.organisation.contacts = props.organisation.contacts.filter(contact => 
+                            contact.cus_id !== originalCustomerId
+                        );
+                    }
+                    // Update the original customer reference
                     originalCustomer = customer;
-                    //remove original customer from organisation
-                    props.organisation.contacts = props.organisation.contacts.filter(contact => contact.cus_id !== originalCustomer.id);
                 } else {
+                    // Revert the customer selection if the API call failed
                     props.organisation.customer = originalCustomer;
                 }
+            }).catch(error => {
+                console.error('Error updating customer:', error);
+                // Revert the customer selection if there's an error
+                props.organisation.customer = originalCustomer;
             });
         }
     };

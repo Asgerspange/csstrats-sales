@@ -88,6 +88,7 @@ class OrganisationController extends Controller
             ],
             [
             'cus_id' => $validatedData['cus_id'],
+            'is_primary' => false
             ]
         );
 
