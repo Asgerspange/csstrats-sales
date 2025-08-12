@@ -7,6 +7,7 @@
     import { Label } from "@/components/ui/label";
     import { Button } from "@/components/ui/button";
     import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    import { CreateContactDialog } from '@/components/contacts';
 
     const props = defineProps({
         organisation: {
@@ -99,7 +100,7 @@
         });
     };
 
-    const removeContact = (contactId) => {
+    const removeContact = (contactId: number) => {
         fetch(`/organisations/${props.organisation.id}/remove-contact`, {
             method: 'POST',
             headers: {
@@ -204,7 +205,11 @@
 
                     <!-- Contacts -->
                     <div class="bg-white rounded-xl p-4 shadow">
-                        <h2 class="font-semibold mb-2">Kontakter</h2>
+                        <div class="flex justify-between mb-2 items-center">
+                            <h2 class="font-semibold">Kontakter</h2>
+                            <CreateContactDialog :organisation="organisation" />
+                        </div>
+
                         <table class="min-w-full border text-sm">
                             <thead class="bg-gray-100">
                                 <tr>

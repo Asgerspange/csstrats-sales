@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\{
     Organisation,
     Customer,
-    OrganisationContact
+    OrganisationContact,
+    Contact
 };
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,17 +15,24 @@ class OrganisationController extends Controller
 {
     public function index()
     {
+        $organisations = cache()->remember('organisations.index', now()->addMinutes(60), function () {
+            return Organisation::get();
+        });
         return Inertia::render('Organisations/Index', [
-            'organisations' => fn () => Organisation::get(),
+            'organisations' => $organisations,
         ]);
     }
 
     public function show(Organisation $organisation)
     {
-        $organisation = cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer');
-        });
+        $cacheKey = "organisations.show.{$organisation->id}";
 
+        $organisation = cache()->remember($cacheKey, now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+        });
+        $organisations = cache()->remember('organisations.index', now()->addMinutes(60), function () {
+            return Organisation::all();
+        });
         $cachedCustomers = cache()->remember('customers.index', now()->addMinutes(60), function () {
             $customers =  Customer::with('user', 'subscriptions')->get();
 
@@ -97,7 +105,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
         });
 
         return response()->json([
@@ -121,11 +129,40 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
         });
 
         return response()->json([
             'message' => 'Primary contact updated successfully',
+            'organisation' => $organisation,
+        ]);
+    }
+
+    public function removeContact(Request $request, Organisation $organisation)
+    {
+        $validatedData = $request->validate([
+            'contact_id' => 'required|exists:organisation_contacts,id',
+        ]);
+
+        $organisationContact = OrganisationContact::findOrFail($validatedData['contact_id']);
+
+        if ($organisationContact->contact_id) {
+            $organisationContact->contact()->delete();
+        }
+
+        $organisationContact->delete();
+
+        cache()->forget("contacts.index");
+        cache()->remember('contacts.index', now()->addMinutes(60), function () {
+            return Contact::with('organisation')->get();
+        });
+        cache()->forget("organisations.show.{$organisation->id}");
+        cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+        });
+
+        return response()->json([
+            'message' => 'Contact removed successfully',
             'organisation' => $organisation,
         ]);
     }
