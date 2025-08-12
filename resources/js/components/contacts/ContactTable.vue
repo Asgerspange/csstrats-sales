@@ -60,7 +60,9 @@ const filteredContacts = computed<Contact[]>(() => {
         const search = props.filters.searchTerm.toLowerCase();
         result = result.filter(contact =>
             contact.name?.toLowerCase().includes(search) ||
-            organisation.cvr?.toLowerCase().includes(search)
+            contact?.organisation?.name?.toLowerCase().includes(search) ||
+            contact?.email?.toLowerCase().includes(search) ||
+            contact?.phone?.includes(search)
         );
     }
 
