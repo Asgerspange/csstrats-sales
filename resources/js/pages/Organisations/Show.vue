@@ -18,6 +18,7 @@
             required: true
         }
     });
+    let originalCustomer = props.organisation.customer;
 
     console.log('Organisation:', props.organisation);
     const tasks = ref([
@@ -44,7 +45,15 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 },
                 body: JSON.stringify({ cus_id: customer.id }),
-            })
+            }).then(response => {
+                if (response.ok) {
+                    originalCustomer = customer;
+                    //remove original customer from organisation
+                    props.organisation.contacts = props.organisation.contacts.filter(contact => contact.cus_id !== originalCustomer.id);
+                } else {
+                    props.organisation.customer = originalCustomer;
+                }
+            });
         }
     };
 

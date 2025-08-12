@@ -96,7 +96,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer');
+            return $organisation->load('customer', 'contacts.customer');
         });
 
         return response()->json([
