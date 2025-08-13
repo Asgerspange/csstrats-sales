@@ -35,8 +35,8 @@ class fetchStripeData extends Command
     {
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        // $this->getCustomers();
-        //$this->getSubscriptions();
+        $this->getCustomers();
+        $this->getSubscriptions();
         $this->getInvoices();
     }
 

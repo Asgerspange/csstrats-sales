@@ -28,7 +28,7 @@ class OrganisationController extends Controller
         $cacheKey = "organisations.show.{$organisation->id}";
 
         $organisation = cache()->remember($cacheKey, now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
         });
         $organisations = cache()->remember('organisations.index', now()->addMinutes(60), function () {
             return Organisation::all();
@@ -105,7 +105,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
         });
 
         return response()->json([
@@ -129,7 +129,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
         });
 
         return response()->json([
@@ -158,7 +158,7 @@ class OrganisationController extends Controller
         });
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact');
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
         });
 
         return response()->json([

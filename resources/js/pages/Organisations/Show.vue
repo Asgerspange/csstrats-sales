@@ -266,6 +266,36 @@
                     </div>
                 </div>
             </div>
+            <div class="bg-white rounded-xl p-4 shadow">
+                <h2 class="font-semibold mb-2">Packages</h2>
+                <table class="min-w-full border text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 text-left">Name</th>
+                            <th class="p-2 text-left">Price</th>
+                            <th class="p-2 text-left">Monthly Price</th>
+                            <th class="p-2 text-left">Max Members</th>
+                            <th class="p-2 text-left">Max Teams</th>
+                            <th class="p-2 text-left">Max Stratbooks</th>
+                            <!-- <th class="p-2 text-left">Actions</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="p in organisation.packages" :key="p.id" class="border-t">
+                            <td class="p-2">{{ p.name }}</td>
+                            <td class="p-2">€{{ p.price }}</td>
+                            <td class="p-2">€{{ p.monthly_price }}</td>
+                            <td class="p-2">{{ p.max_members }}</td>
+                            <td class="p-2">{{ p.max_teams }}</td>
+                            <td class="p-2">{{ p.max_stratbooks }}</td>
+                            <!-- <td class="p-2">
+                                <Button variant="destructive" size="sm">Slet</Button>
+                            </td> -->
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- <Button variant="outline" size="sm" @click="createPackage">Opret pakke</Button> -->
+            </div>
         </div>
     </AppLayout>
 </template>

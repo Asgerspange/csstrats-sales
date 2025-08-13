@@ -22,6 +22,12 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::get('contacts', [App\Http\Controllers\ContactController::class, 'index'])->name('contacts.index');
     Route::post('contacts', [App\Http\Controllers\ContactController::class, 'store'])->name('contacts.store');
 
+    Route::get('packages', [App\Http\Controllers\PackageController::class, 'index'])->name('packages.index');
+    Route::get('packages/{package}', [App\Http\Controllers\PackageController::class, 'show'])->name('packages.show');
+    Route::post('packages', [App\Http\Controllers\PackageController::class, 'store'])->name('packages.store');
+    Route::delete('packages/{package}', [App\Http\Controllers\PackageController::class, 'destroy'])->name('packages.destroy');
+
+    Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'index'])->name('massmail.index');
     Route::post('clear-cache', function () {
         \Log::info('Cache cleared by admin user');
         cache()->flush();

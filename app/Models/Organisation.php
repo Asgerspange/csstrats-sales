@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\{
 class Organisation extends Model
 {
     use SoftDeletes;
+    protected $connection = 'mysql_sales';
     protected $fillable = ['name', 'cvr', 'country', 'address', 'type', 'zip', 'cus_id'];
 
     public function customer()
@@ -20,5 +21,10 @@ class Organisation extends Model
     public function contacts()
     {
         return $this->hasMany(OrganisationContact::class);
+    }
+
+    public function packages()
+    {
+        return $this->hasMany(Package::class, 'organisation_id', 'id');
     }
 }
