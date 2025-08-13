@@ -29,3 +29,5 @@ Hvis I ønsker det, tilbyder vi også et gratis online oplæg, hvor vi viser, hv
 {{ $senderName }}<br>
 Salgsansvarlig – Nordic Esports Group ApS<br>
 {{ $senderEmail }} | <a href="https://csstrats.dk">csstrats.dk</a></p>
+<p></p>
+<p>CVR: 45603768</p>

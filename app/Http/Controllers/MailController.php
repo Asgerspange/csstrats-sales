@@ -19,7 +19,8 @@ class MailController extends Controller
                 $name = $record['Skole'];
                 $email = $record['Note'];
 
-                Mail::send(new MassMail($name, 'asgerspange@gmail.com'));
+                Mail::send(new MassMail($name, $email));
+                \Log::info("Mail sent to: $name <$email>");
             }
         }
 

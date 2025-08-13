@@ -1,7 +1,7 @@
 ,Skole,Status,Note
 ,Aarhus Efterskole,Blank,info@aarhusefterskole.dk
 ,Vivild Gymnastik- & Idrætsefterskole,Blank,kontor@vgi.dk
-,Rønde Højskole og Efterskole (efterskoledelen),Blank,post@rhe.dk.
+,Rønde Højskole og Efterskole ,Blank,post@rhe.dk.
 ,Hedemølle Efterskole,Blank,hedemoelle@hedemoelle.dk
 ,Gudenaadalens Efterskole,Blank,info@gudenaadalen.dk
 ,Levring Efterskole ,Blank,hello@levringefterskole.dk
@@ -10,13 +10,13 @@
 ,Horne Efterskole,Blank,info@horne.dk
 ,Ranum Efterskole,Blank,info@ranumefterskole.dk
 ,Ingstrup Efterskole ,Blank,kontor@ingstrupefterskole.dk
-,Nordjyllands Idrætsefterskole Stidsholt.,Blank,info@stidsholt.dk
+,Nordjyllands Idrætsefterskole Stidsholt,Blank,info@stidsholt.dk
 ,Hørby Efterskole,Blank,he@hoerbyefterskole.dk
 ,Vesterdal Efterskole,Blank,info@vesterdal.dk
 ,Viby Efterskole,Blank,viby@viby-efterskole.dk
 ,Efterskolen Flyvesandet,Blank,kontor@flyvesandet.dk
-,Langelands Efterskole,Blank,admin@leskole.dk
-,Højer Efterskole,Blank,kontor@flyvesandet.dk
+,Langelands Efterskole,Blank,hej@leskole.dk
+,Højer Efterskole,Blank,kontor@hoejerefterskole.dk
 ,Løgumkloster Efterskole,Blank,lme@lme.dk
 ,Agerskov Ungdomsskole,Blank,info@agerskovungdomsskole.dk
 ,Ladelund Efterskole,Blank,postkassen@ladelundefterskole.dk
@@ -31,7 +31,7 @@
 ,Vedersø Efterskole,Blank,vi@vie.dk
 ,Sædding Efterskole,Blank,kontor@saedding.dk
 ,Dejbjerglund Efterskole,Blank,kontor@dejbjerglund.dk
-,Den danske Design- og Håndværksefterskole i Skjern,Blank,askov@askovefterskole.dk
+,Den danske Design- og Håndværksefterskole i Skjern,Blank,dhe@dhe.dk
 ,Københavns Idrætsefterskole,Blank,kontakt@kies.dk
 ,Nordsjællands Efterskole,Blank,ne@ne.dk
 ,Sportsefterskolen Sjælsølund,Blank,efterskole@sjaelsoelund.dk
@@ -42,7 +42,7 @@
 ,Svenstrup Efterskole,Blank,kontor@svenstrup-efterskole.dk
 ,Handbjerghus Efterskole,Blank,kontor@handbjerghus.dk
 ,Gymnastikefterskolen Stevns ,Blank,kontor@gymnastikstevns.dk
-,Lundby Efterskole,Blank,adm@lundbyefterskole.dk
+,Lundby Efterskole,Aktiv,adm@lundbyefterskole.dk
 ,Sorø Gymnastikefterskole,Blank,kontor@soroefterskole.dk
 ,Haarby Efterskole,Blank,he@haarbyefterskole.dk
 ,Strib Idrætsefterskole,Blank,kontor@stribidraetsefterskole.dk
@@ -50,189 +50,188 @@
 ,Halstedhus Efterskole,Blank,kontor@halstedhus.dk
 ,Billeshave Efterskole,Blank,kontor@billeshave.dk
 ,Efterskolen ved Nyborg,Blank,evn@evn.dk
-,Sejergaardsskolen Grundskole og efterskole (345303),Blank,he@haarbyefterskole.dk
+,Sejergaardsskolen Grundskole og efterskole ,Blank,kontakt@sejergaardsskolen.dk
 ,Holte-Hus Efterskole,Blank,mail@holte-hus.dk
-,Emmerske Efterskole,Blank,info@emmerske.dk
-,Vrigsted Efterskole,Blank,info@vrigsted.dk
-,Waldemarsbo Efterskole,Blank,kontakt@waldemarsbo.dk
-,Faxehus Efterskole,Blank,info@faxehus.dk
-,"Tølløse Privat- og Efterskole, Baptisternes Efterskoler",Blank,info@toelloeseefterskole.dk
-,Hoptrup Efterskole,Blank,hoptrup@hoptrup.dk
-,Gørlev Idrætsefterskole,Blank,info@gorlevidraetsefterskole.dk
-,"Skolen for Gastronomi, Musik & Design",Blank,kontakt@sgmd.dk
-,Baaring Efterskole,Blank,info@baaring.dk
-,Efterskolen Solgården,Blank,info@solgaarden.dk
-,Adventure Efterskolen Sønderjylland Skelde,Blank,post@adventure-efterskolen.dk
-,Skibelund Gymnastik- og Idrætsefterskole,Blank,kontakt@skibelund.dk
-,Skrødstrup Efterskole,Blank,info@skroedstrup.dk
-,Mariager Høj- & Efterskole (Efterskolen),Blank,info@mariagerhøjskole.dk
-,Djurslands Efterskole,Blank,info@djurslandsefterskole.dk
-,Eriksminde Efterskole,Blank,post@eriksminde.dk
+,Emmerske Efterskole,Blank,ee@eeskole.dk
+,Vrigsted Efterskole,Blank,kontor@vrigsted-efterskole.dk
+,Waldemarsbo Efterskole,Blank,waldemarsbo@waldemarsbo.dk
+,Faxehus Efterskole,Blank,kontor@faxehus.dk
+,"Tølløse Privat- og Efterskole, Baptisternes Efterskoler",Blank,tpoe@tpoe.dk
+,Hoptrup Efterskole,Blank,mail@hoptrupefterskole.dk
+,Gørlev Idrætsefterskole,Blank,kontoret@idraetsefterskolen.dk
+,"Skolen for Gastronomi, Musik & Design",Blank,info@skolenfor.dk
+,Baaring Efterskole,Blank,Mail@baaringefterskole.dk
+,Efterskolen Solgården,Blank,kontoret@solgaarden.dk
+,Adventure Efterskolen Sønderjylland Skelde,Blank,Info@adventure-efterskolen.dk
+,Skibelund Gymnastik- og Idrætsefterskole,Blank,kontor@s-g-i.dk
+,Skrødstrup Efterskole,Blank,skrodstrup@skrodstrup.dk
+,Mariager Høj- & Efterskole ,Blank,kontor@mariager-efterskole.dk
+,Djurslands Efterskole,Blank,hej@djurslands.dk
+,Eriksminde Efterskole,Blank,post@eriksmindeefterskole.dk
 ,Rudehøj Efterskole,Blank,info@rudehoj.dk
-,Galtrup Efterskole,Blank,info@galtrup.dk
-,Skals Efterskole,Blank,kontakt@skals.dk
-,Klejtrup Musikefterskole,Blank,info@klejtrupmusik.dk
-,Hald Ege Fri- & Efterskole (efterskolen),Blank,info@haldege.dk
-,Aalestrup Naturefterskole,Blank,info@aalestrup.dk
-,Østhimmerlands Ungdomsskole,Blank,info@oesthimmerland.dk
-,Rebild Efterskole,Blank,info@rebildefterskole.dk
-,Svendborg Efterskole,Blank,info@svendborg-efterskole.dk
-,Musikefterskolen i Humble,Blank,info@musikefterskolen.dk
-,Nordfyns Efterskole,Blank,info@nordfynsefterskole.dk
-,Vestfyns Efterskole,Blank,kontakt@vestfynsefterskole.dk
-,Sportsefterskolen SINE,Blank,info@sportsefterskolen.dk
-,Nordborg Slots Efterskole,Blank,kontakt@nordborgslots.dk
-,Rejsby Europæiske Efterskole,Blank,info@rejsby-efterskole.dk
-,Vojens Gymnastik- og Idrætsefterskole,Blank,kontakt@vojensgym.dk
-,Højer Design Efterskole,Blank,info@hojerdesign.dk
-,Øse Efterskole,Blank,info@oseefterskole.dk
-,Vesterlund Efterskole,Blank,kontakt@vesterlund.dk
-,Hellebjerg Idrætsefterskole,Blank,info@hellebjerg.dk
-,Efterskolen Kildevæld,Blank,info@kildevæld.dk
-,Skanderup Efterskole,Blank,kontakt@skanderup.dk
-,Idrætsefterskolen Lægården,Blank,info@laegaaren.dk
-,Hestlund Efterskole,Blank,info@hestlund.dk
-,Idrætsskolerne Ikast (efterskolen),Blank,info@idrætsskolerne.dk
-,Hardsyssel Efterskole,Blank,info@hardsyssel.dk
-,Nøvlingskov Efterskole,Blank,kontakt@noevlingskov.dk
-,Staby Efterskole,Blank,info@staby-efterskole.dk
-,Husby Efterskole,Blank,info@husby.dk
-,Brejninggaard Efterskole,Blank,info@brejninggaard.dk
-,Tirstrup Idrætsefterskole,Blank,info@tirstrupidraet.dk
-,Frijsenborg Efterskole,Blank,info@frijsenborg.dk
-,Efterskolen Ådalen og Åskolen - friskolen i Hørning,Blank,info@aadalen.dk
-,Gribskov Efterskole,Blank,kontakt@gribskov-efterskole.dk
-,Risskov Efterskole,Blank,info@risskov.dk
-,Odsherreds Efterskole,Blank,kontakt@odsherredsefterskole.dk
-,Hårslev Efterskole,Blank,info@haarslev.dk
-,Tømmerup Fri- og Efterskole (efterskolen),Blank,info@toemmerup.dk
-,Brøderup Efterskole,Blank,kontakt@broderup.dk
-,Brøndby Idrætsefterskole,Blank,info@broendby-idraetsefterskole.dk
-,Efterskolen Lindenborg,Blank,kontakt@lindenborg.dk
-,Baunehøj Efterskole,Blank,info@baunehoj.dk
-,Skovbo Efterskole,Blank,kontakt@skovbo.dk
-,Bindernæs Efterskole,Blank,info@bindernaes.dk
-,Silkeborg Efterskole,Blank,info@silkeborg-efterskole.dk
-,Efterskolen for Scenekunst,Blank,info@scenekunst.dk
-,Haslev Idrætsefterskole,Blank,kontakt@haslevidraet.dk
-,Friskolen og Idrætsefterskolen Ubby,Blank,info@ubby.dk
-,Efterskolen Smededal,Blank,kontakt@smededal.dk
-,Idrætsefterskolen Grønsund,Blank,info@idraetsefterskolengroensund.dk
-,Gunslevholm Idrætsefterskole,Blank,kontakt@gunslevholm.dk
-,Næsgaard Efterskole,Blank,info@naesgaard.dk
-,Bornholms Efterskole,Blank,kontakt@bornholmsefterskole.dk
-,"Ollerup Efterskole, Sang og Musik",Blank,info@ollerup.dk
-,Nørre Aaby Efterskole,Blank,info@noerreaaby.dk
-,Ryslinge Høj- og Efterskole (efterskoledelen),Blank,kontakt@ryslinge.dk
-,Ringe Fri- og Efterskole,Blank,info@ringefri.dk
-,Hammerum Fri- og Efterskole (efterskolen),Blank,kontakt@hammerum.dk
-,Efterskolen Helle,Blank,info@helle.dk
-,Glamsbjerg Fri- og Efterskole,Blank,kontakt@glamsbjerg.dk
-,Magleby Efterskole,Blank,info@magleby.dk
-,Efterskolen Alterna,Blank,kontakt@alterna.dk
-,Tronsø Efterskole og Fri Fagskole,Blank,info@tronsoe.dk
-,Frøslev Efterskole,Blank,kontakt@froeslev.dk
-,Osted Fri- og Efterskole (efterskolen),Blank,info@osted.dk
-,Efterskolen Epos,Blank,kontakt@epos.dk
-,Broby Fri- og Efterskole,Blank,info@broby.dk
-,Hjemly Fri- og Idrætsefterskole,Blank,kontakt@hjemly.dk
-,Ærø Efterskole,Blank,info@areoefterskole.dk
-,Bøvling Fri- og Idrætsefterskole (efterskole),Blank,info@bovling.dk
-,Vesterbølle Efterskole,Aktiv,kontakt@vesterboelle.dk
-,Stubbekøbing Efterskole,Blank,info@stubbekoebing.dk
-,Efterskolen Østergård,Blank,kontakt@ostergard.dk
-,Mejlby Efterskole,Blank,info@mejlby.dk
+,Galtrup Efterskole,Blank,galtrup@galtrup.dk
+,Skals Efterskole,Blank,MAIL@SKALS-EFTERSKOLE.DK
+,Klejtrup Musikefterskole,Blank,info@klejtrupmusikefterskole.dk
+,Hald Ege Fri- & Efterskole ,Blank,info@hald-ege-efterskole.dk
+,Aalestrup Naturefterskole,Blank,post@naturefterskolen.dk
+,Østhimmerlands Ungdomsskole,Blank,oeu@oeu.dk
+,Rebild Efterskole,Blank,kontor@rebildefterskole.dk 
+,Svendborg Efterskole,Blank,kontor@svendborg-efterskole.dk
+,Musikefterskolen i Humble,Blank,post@musikefterskolen.dk
+,Nordfyns Efterskole,Blank,kontor@nordfe.dk
+,Vestfyns Efterskole,Blank,VE@VestfynsEfterskole.dk
+,Sportsefterskolen SINE,Blank,sine@sine.dk
+,Nordborg Slots Efterskole,Blank,info@scienceefterskolen.dk
+,Rejsby Europæiske Efterskole,Blank,kontor@rejsby-efterskole.dk
+,Vojens Gymnastik- og Idrætsefterskole,Blank,vgie@vgie.dk
+,Højer Design Efterskole,Blank,kontor@hoejerefterskole.dk
+,Øse Efterskole,Blank,kontoret@oese.dk
+,Vesterlund Efterskole,Blank,kontor@vesterlund-efterskole.dk
+,Hellebjerg Idrætsefterskole,Blank,kontoret@hellebjerg.dk
+,Efterskolen Kildevæld,Blank,kontor@efterskolen-kildevaeld.dk
+,Skanderup Efterskole,Blank,kontor@skanderupefterskole.dk
+,Idrætsefterskolen Lægården,Blank,mail@laegaarden.dk
+,Hestlund Efterskole,Blank,he@hestlund.dk
+,Idrætsskolerne Ikast ,Blank,info@isi.dk
+,Hardsyssel Efterskole,Blank,kontoret@hardsyssel.dk
+,Nøvlingskov Efterskole,Blank,noev@noevlingskov.dk
+,Staby Efterskole,Blank,post@stabyefterskole.dk
+,Husby Efterskole,Blank,post@husbyefterskole.dk
+,Brejninggaard Efterskole,Blank,mail@brejninggaard.dk
+,Tirstrup Idrætsefterskole,Blank,kontor@tirstrup-ie.dk
+,Frijsenborg Efterskole,Blank,info@fus.dk
+,Efterskolen Ådalen og Åskolen - friskolen i Hørning,Blank,aaskolen@aaskolen.dk
+,Gribskov Efterskole,Blank,gribskov@gribskovefterskole.dk
+,Risskov Efterskole,Blank,info@risskovefterskole.dk
+,Odsherreds Efterskole,Blank,oe@oepost.dk
+,Hårslev Efterskole,Blank,info@haarslevefterskole.dk
+,Tømmerup Fri- og Efterskole ,Blank,kontor@tfe.dk
+,Brøderup Efterskole,Blank,kontoret@befs.dk
+,Brøndby Idrætsefterskole,Blank,kontakt@brondby-ie.dk
+,Efterskolen Lindenborg,Blank,kontoret@efterskolen.dk
+,Baunehøj Efterskole,Blank,be@baunehoej.dk
+,Skovbo Efterskole,Blank,kontor@skovboefterskole.dk
+,Bindernæs Efterskole,Blank, info@bindernaes.dk
+,Silkeborg Efterskole,Blank,info@silkeborgefterskole.dk
+,Efterskolen for Scenekunst,Blank,info@efterskolenforscenekunst.dk
+,Haslev Idrætsefterskole,Blank,adm@his-haslev.dk
+,Friskolen og Idrætsefterskolen Ubby,Blank,kontor@ubby.dk
+,Efterskolen Smededal,Blank,info@smededal.dk
+,Idrætsefterskolen Grønsund,Blank,kf@ieg.dk
+,Gunslevholm Idrætsefterskole,Blank,INFO@GUNSLEVHOLM.DK
+,Næsgaard Efterskole,Blank,Kontor@naesgaard.dk
+,"Ollerup Efterskole, Sang og Musik",Blank,mail@ollemus.dk
+,Nørre Aaby Efterskole,Blank,naae@naae.dk
+,Ryslinge Høj- og Efterskole ,Blank,mail@ryslinge-efterskole.dk
+,Ringe Fri- og Efterskole,Blank,rfe@rfe.dk
+,Hammerum Fri- og Efterskole ,Blank,hammerum-efterskole@hamme.dk
+,Efterskolen Helle,Blank,kontor@efterskolenhelle.dk
+,Glamsbjerg Fri- og Efterskole,Blank,kontor@gfeskole.dk
+,Magleby Efterskole,Blank,kontor@maglebyefterskole.dk
+,Efterskolen Alterna,Blank,info@efterskolerne.dk
+,Tronsø Efterskole og Fri Fagskole,Blank,tronso@tronso.dk
+,Frøslev Efterskole,Blank,post@fle-skole.dk
+,Osted Fri- og Efterskole ,Blank,kontor@ostedefterskole.dk
+,Efterskolen Epos,Blank,kontor@epos-efterskole.dk  
+,Broby Fri- og Efterskole,Blank,info@brobysportsefterskole.dk
+,Hjemly Fri- og Idrætsefterskole,Blank, hjemly@hjemly.dk
+,Ærø Efterskole,Blank,aee@aee.dk
+,Bøvling Fri- og Idrætsefterskole ,Blank,info@bi-efterskole.dk
+,Vesterbølle Efterskole,Aktiv,kontakt@v-e.dk
+,Stubbekøbing Efterskole,Blank,sa@stefalster.dk
+,Efterskolen Østergård,Blank,kontor@oe42.dk
+,Mejlby Efterskole,Blank,kontor@mejlbyefterskole.dk
 ,Lystruphave Efterskole,Blank,info@lystruphave.dk
-,Gylling Efterskole,Blank,info@gylling.dk
-,Sdr. Feldings Efterskole,Blank,kontakt@sdrfelding.dk
-,Kragelund Efterskole,Blank,info@kragelund.dk
-,Bernstorffsminde Efterskole,Blank,kontakt@bernstorffsminde.dk
-,Hedens Efterskole,Blank,info@hedens.dk
-,True North Efterskole Snaptun,Blank,info@truenorth.dk
-,Glamsdalens Idrætsefterskole,Blank,kontakt@glamsdalens.dk
-,Grejsdalens Efterskole,Blank,info@grejsdalen.dk
-,Efterskolen Frydensberg,Blank,kontakt@frydensberg.dk
-,Vejlefjordskolen (efterskole),Blank,info@vejlefjordskolen.dk
-,Lyngs Idrætsefterskole,Blank,kontakt@lyngsidraetsefterskole.dk
-,Himmelbjergegnens Natur- og Idrætsefterskole,Blank,info@himmelbjergegnens.dk
-,Brøruphus Efterskole,Blank,kontakt@broruphus.dk
-,Karise Efterskole,Blank,info@karise.dk
-,Sdr. Nærå Friskole og Midtfyns Efterskole,Blank,kontakt@sdrnaara.dk
-,Fårevejle Fri- og Efterskole,Blank,info@farevejle.dk
-,Mellerup Fri- og Efterskole - (efterskolen),Blank,kontakt@mellerup.dk
-,Kastanievej Efterskole Frederiksberg,Blank,info@kastanievej.dk
-,Efterskolen Sports Academy Denmark,Blank,kontakt@sportsacademy.dk
-,"Vinde Helsinge Friskole, Vestsjællands Idrætsefterskole",Blank,info@vindehelsinge.dk
-,Høng Efterskole,Blank,kontakt@hoeng.dk
-,Tølløse Slots Efterskole,Blank,info@toelloeseslots.dk
-,Korinth Efterskole,Blank,kontakt@korinth.dk
-,Faaborgegnens Efterskole,Blank,info@faaborgegnens.dk
-,Vejstrup Efterskole,Blank,kontakt@vejstrup.dk
-,Skolerne i Oure - Sport & Performance,Blank,info@skolerne-i-oure.dk
-,Kerteminde Efterskole,Blank,kontakt@kerteminde.dk
-,Eisbjerghus Internationale Efterskole,Blank,info@eisbjerghus.dk
-,Tommerup Efterskole,Blank,kontakt@tommerup.dk
-,Design- & Idrætsefterskolen Skamling,Blank,info@skamling.dk
-,Sundeved Efterskole,Blank,kontakt@sundeved.dk
-,Kongeådalens Efterskole,Blank,info@kongeaadalen.dk
-,Den Tyske Efterskole Tinglev,Blank,kontakt@detyskefterskole.dk
-,Frøstruphave Efterskole,Blank,info@frostruphave.dk
-,Bramming Gymnastik- og Idrætsefterskole,Kontaktet,kontakt@bramminggym.dk
-,Sydvestjyllands Efterskole,Blank,info@sydvestjylland.dk
-,Vardeegnens Gymnasieforberedende Efterskole,Blank,kontakt@vardeegnens.dk
-,Ølgod Efterskole,Blank,info@olgod.dk
-,Brejning Efterskole,Blank,kontakt@brejning.dk
-,Ågård Efterskole,Blank,info@agaard.dk
-,Vestbirk Musik- & Sportsefterskole,Blank,kontakt@vestbirk.dk
-,Bråskovgård Efterskole,Blank,info@braskovgaard.dk
-,Koldingegnens Idrætsefterskole,Blank,kontakt@koldingegnens.dk
-,Lunderskov Efterskole,Blank,info@lunderskov.dk
-,Midtjysk Efterskole,Blank,kontakt@midtjysk.dk
-,Flemming Efterskole,Blank,info@flemming.dk
-,Vejle Idrætshøjskole & Vejle Idrætsefterskole (efterskoledelen),Blank,kontakt@vejleidraet.dk
-,Blåkilde Efterskole,Blank,info@blaakilde.dk
-,Orkesterefterskolen,Blank,kontakt@orkesterefterskolen.dk
-,Lomborg Gymnastik- og Idrætsefterskole,Blank,info@lomborg.dk
-,Venø Efterskole,Blank,kontakt@veno.dk
+,Gylling Efterskole,Blank,ge@gylling-efterskole.dk
+,Sdr. Feldings Efterskole,Blank,kontor@sfeefterskole.dk
+,Kragelund Efterskole,Blank, kontoret@kragelund-efterskole.dk
+,Bernstorffsminde Efterskole,Blank,info@berns.dk
+,Hedens Efterskole,Blank,kontor@hedensefterskole.dk
+,True North Efterskole Snaptun,Blank,info@efterskolerne.dk
+,Glamsdalens Idrætsefterskole,Blank,gie@glamsdalen.dk
+,Grejsdalens Efterskole,Blank,ge@grejsdalens.dk
+,Efterskolen Frydensberg,Blank,kontor@frydensberg.dk
+,Vejlefjordskolen ,Blank,info@vejlefjordskolen.dk
+,Lyngs Idrætsefterskole,Blank,kontoret@l-i-e.dk
+,Himmelbjergegnens Natur- og Idrætsefterskole,Blank,kontor@himmelbjergegnens.dk
+,Brøruphus Efterskole,Blank,broeruphus@broeruphus.dk
+,Karise Efterskole,Blank,kontor@kaef.dk
+,Sdr. Nærå Friskole og Midtfyns Efterskole,Blank,kontor@1858.dk
+,Fårevejle Fri- og Efterskole,Blank,Kontoret@ffeonline.dk
+,Mellerup Fri- og Efterskole ,Blank,kontor@mellerupefterskole.dk
+,Kastanievej Efterskole Frederiksberg,Blank,kontakt@kastanie.dk
+,Efterskolen Sports Academy Denmark,Blank,info@efterskolerne.dk
+,"Vinde Helsinge Friskole, Vestsjællands Idrætsefterskole",Blank,kontor@efterskole.nu
+,Høng Efterskole,Blank,sekretaer@hoengefterskole.dk
+,Tølløse Slots Efterskole,Blank,tse@slottet.dk
+,Korinth Efterskole,Blank,kontor@korinth-efterskole.dk
+,Faaborgegnens Efterskole,Blank,kontor@faae.dk
+,Vejstrup Efterskole,Blank,vejstrup@vejstrup.dk
+,Skolerne i Oure - Sport & Performance,Blank,info@oure.dk
+,Kerteminde Efterskole,Blank,kontor@kertemindeefterskole.dk
+,Eisbjerghus Internationale Efterskole,Blank,kontor@eisbjerghus.dk
+,Tommerup Efterskole,Blank,post@tommerup-efterskole.dk
+,Design- & Idrætsefterskolen Skamling,Blank,kontor@skamling.dk
+,Sundeved Efterskole,Blank,kontor@sundeved-efterskole.dk
+,Kongeådalens Efterskole,Blank, info@kongeskole.dk
+,Den Tyske Efterskole Tinglev,Blank,nachschule@tingleff.dk
+,Frøstruphave Efterskole,Blank,post@frostruphave.dk
+,Bramming Gymnastik- og Idrætsefterskole,Kontaktet,kontor@brammingefterskole.dk
+,Sydvestjyllands Efterskole,Blank,se@sydvestjyllandsefterskole.dk
+,Vardeegnens Gymnasieforberedende Efterskole,Blank,post@vge.dk
+,Ølgod Efterskole,Blank,info@oelgodefterskole.dk
+,Brejning Efterskole,Blank,kontor@brejning.dk
+,Ågård Efterskole,Blank,post@aagaardefterskole.dk
+,Vestbirk Musik- & Sportsefterskole,Blank,kontor@vmse.dk
+,Bråskovgård Efterskole,Blank,kontor@bge.dk
+,Koldingegnens Idrætsefterskole,Blank,kontor@kie.dk
+,Lunderskov Efterskole,Blank,post@lunderskov-efterskole.dk
+,Midtjysk Efterskole,Blank,midtjysk@midtjyskefterskole.dk
+,Flemming Efterskole,Blank,info@flemmingefterskole.dk
+,Vejle Idrætshøjskole & Vejle Idrætsefterskole ,Blank,kontor@vies.dk
+,Blåkilde Efterskole,Blank,info@blaakildeefterskole.dk
+,Orkesterefterskolen,Blank,mail@orkesterefterskolen.dk
+,Lomborg Gymnastik- og Idrætsefterskole,Blank,info@lomborg-efterskole.dk
+,Venø Efterskole,Blank,info@venoe-efterskole.dk
 ,Rydhave Slots Efterskole,Blank,info@rydhave.dk
-,Femmøller Efterskole,Blank,kontakt@femmoller.dk
-,Helgenæs Naturefterskole,Blank,kontakt@helgenaes.dk
-,Klank Efterskole,Blank,info@klank.dk
-,Hou Maritime Idrætsefterskole,Blank,kontakt@houmaritime.dk
-,Samsø Efterskole,Blank,info@samsoe.dk
-,Salling Efterskole,Blank,kontakt@salling.dk
-,Skyum Idrætsefterskole,Blank,info@skyum.dk
-,Tjele Efterskole,Blank,kontakt@tjelee.dk
-,Halvorsminde Efterskole og Halvor Fri Fagskole,Blank,info@halvorsminde.dk
-,Thorsgaard Efterskole,Blank,kontakt@thorsgaard.dk
-,Onsild Idrætsefterskole,Blank,info@onsild.dk
-,Østerskov Efterskole,Blank,kontakt@oesterskov.dk
-,Himmerlandscentrets Idrætsefterskole,Blank,kontakt@himmerlandscentret.dk
-,Sportsefterskolen Aabybro,Blank,info@sportsefterskolenaabybro.dk
-,Himmerlands Ungdomsskole,Blank,kontakt@himmerlandsungdomsskole.dk
-,Sydøstsjællands Idrætsefterskole,Blank,info@sydostsjaelland.dk
-,Bjergsnæs Efterskole,Blank,kontakt@bjergsnaes.dk
-,Dybbøl Efterskole,Blank,info@dybboel.dk
-,Idrætsefterskolen Ulbølle,Blank,kontakt@ulbolle.dk
-,Rågelund Efterskole,Blank,info@ragelund.dk
+,Femmøller Efterskole,Blank,fe@femmoeller.dk
+,Helgenæs Naturefterskole,Blank,kontakt@hne.dk
+,Klank Efterskole,Blank,post@klank-efterskole.dk
+,Hou Maritime Idrætsefterskole,Blank,info@hmi.dk
+,Samsø Efterskole,Blank,info@samsoefterskole.dk
+,Salling Efterskole,Blank,kontor@salling-efterskole.dk
+,Skyum Idrætsefterskole,Blank,kontoret@skyum.dk
+,Tjele Efterskole,Blank,info@tjeleefterskole.dk
+,Halvorsminde Efterskole og Halvor Fri Fagskole,Blank,kontor@halvorsminde.dk
+,Thorsgaard Efterskole,Blank,kontor@thorsgaardefterskole.dk
+,Onsild Idrætsefterskole,Blank,kontor@onsild.dk
+,Østerskov Efterskole,Blank,kontor@osterskov.dk
+,Himmerlandscentrets Idrætsefterskole,Blank,kontor@hci.dk
+,Sportsefterskolen Aabybro,Blank,Info@sportsefterskolen.dk
+,Himmerlands Ungdomsskole,Blank,info@h-u.dk
+,Sydøstsjællands Idrætsefterskole,Blank,kontor@soes-idraet.dk
+,Bjergsnæs Efterskole,Blank,bs@bjergsnaes.dk
+,Dybbøl Efterskole,Blank,DYBBOELEFTERSKOLE@DYBBOELEFTERSKOLE.DK
+,Idrætsefterskolen Ulbølle,Blank,ieu@ieu.dk
+,Rågelund Efterskole,Blank,raagelund@raagelund.dk
 ,Sofie Rifbjerg Efterskole,Blank,kontakt@sofierifbjerg.dk
-,Efterskolen Solbakken,Blank,kontakt@solbakken.dk
-,Try Efterskole,Blank,info@try.dk
-,Ryå Efterskole,Blank,kontakt@rya.dk
-,Tolne Efterskole,Blank,info@tolne.dk
-,Hobro Efterskole,Blank,kontakt@hobro.dk
-,Farsø Efterskole,Blank,info@farsoe.dk
-,Sjørringvold Efterskole,Blank,kontakt@sjoerringvold.dk
-,Gødvad Efterskole,Blank,info@godvad.dk
-,Nørbæk Efterskole,Blank,kontakt@norbaek.dk
+,Efterskolen Solbakken,Blank,forstander@efterskolensolbakken.dk
+,Try Efterskole,Blank,kontor@tryefterskole.dk
+,Ryå Efterskole,Blank,kontor@ryaaefterskole.dk
+,Tolne Efterskole,Blank,kontakt@tolneefterskole.dk
+,Hobro Efterskole,Blank,post@hobroefterskole.dk
+,Farsø Efterskole,Blank,info@f-e.dk
+,Sjørringvold Efterskole,Blank,kontoret@thy-ordblind.dk
+,Gødvad Efterskole,Blank,info@goed.dk
+,Nørbæk Efterskole,Blank,ln@n-efterskole.dk
 ,Finderup Efterskole,Blank,info@finderup.dk
-,Fenskær Efterskole,Blank,kontakt@fenskaer.dk
-,Bork Havn Efterskole,Blank,kontakt@sdrbork.dk
-,Sdr. Bork Efterskole,Blank,info@storeandst.dk
-,Store Andst Efterskole,Blank,kontakt@aabaek.dk
-,Aabæk Efterskole,Blank,info@klintebjerg.dk
-,Klintebjerg Efterskole,Blank,kontakt@nislevgaard.dk
-,Nislevgård Efterskole,Blank,info@hjembaek.dk
-,Hjembæk Efterskole,Blank,kontakt@kvieso.dk
-,Kvie Sø Efterskole,Blank,kontakt@kvieso.dk
-,Rødding Fri Fag- og Efterskole,Blank,info@roedding.dk
+,Fenskær Efterskole,Blank,post@fenskaer.dk
+,Bork Havn Efterskole,Blank,kontoret@bhe-skole.dk
+,Sdr. Bork Efterskole,Blank,info@sbe.dk
+,Store Andst Efterskole,Blank,kontor@storeandst.dk
+,Aabæk Efterskole,Blank,aabaek@aabaek.dk
+,Klintebjerg Efterskole,Blank,kontor@klintebjerg-efterskole.dk
+,Nislevgård Efterskole,Blank,info@nislevgaard.dk
+,Hjembæk Efterskole,Blank,hjembaek@hjembaekefterskole.dk
+,Kvie Sø Efterskole,Blank,kontor@kviesoefterskole.dk
+,Rødding Fri Fag- og Efterskole,Blank,mail@fagogefterskole.dk
