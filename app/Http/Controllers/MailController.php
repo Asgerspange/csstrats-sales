@@ -15,7 +15,7 @@ class MailController extends Controller
         ];
 
         foreach ($recipients as $recipient) {
-            Mail::send(new MassMail($recipient['name']));
+            Mail::send(new MassMail($recipient['name'], $recipient['email']));
         }
 
         return 'Mails have been sent!';
