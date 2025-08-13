@@ -4,20 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Mail\MassMail;
 use Illuminate\Support\Facades\Mail;
-
+use League\Csv\Reader;
 class MailController extends Controller
 {
     public function index()
     {
-        $recipients = [
-            ['email' => 'asgerspange@gmail.com', 'name' => 'Kunde 1'],
-            ['email' => 'steamasger@gmail.com', 'name' => 'Kunde 2'],
-        ];
+        $file = storage_path('emails.csv'); // CSV filen
+        $csv = Reader::createFromPath($file, 'r');
+        $csv->setHeaderOffset(0); // Brug første række som header
 
-        foreach ($recipients as $recipient) {
-            Mail::send(new MassMail($recipient['name'], $recipient['email']));
+        $records = $csv->getRecords();
+        foreach ($records as $record) {
+            if (trim($record['Status']) === 'Blank') {
+                $name = $record['Skole'];
+                $email = $record['Note'];
+
+                Mail::send(new MassMail($name, 'asgerspange@gmail.com'));
+            }
         }
 
-        return 'Mails have been sent!';
+        return 'Mails er sendt til alle med status Blank';
     }
 }
