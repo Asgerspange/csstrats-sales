@@ -6,4 +6,4 @@ use Illuminate\Support\Facades\{
     Schedule
 };
 
-Schedule::command('app:fetch-stripe-data')->everyHour()->appendOutputTo(storage_path('logs/stripe_data.log'));
+Schedule::command('app:fetch-stripe-data')->hourly()->appendOutputTo(storage_path('logs/stripe_data.log'));
