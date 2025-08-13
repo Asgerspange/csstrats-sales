@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AuthenticateAdminMiddleware;
+use App\Mail\MassMail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,6 +29,10 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::delete('packages/{package}', [App\Http\Controllers\PackageController::class, 'destroy'])->name('packages.destroy');
 
     Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'index'])->name('massmail.index');
+    Route::get('/preview-mail', function () {
+        $recipient = ['name' => 'Kunde 1', 'email' => 'test@example.com'];
+        return new MassMail($recipient['name'], $recipient['email']);
+    });
     Route::post('clear-cache', function () {
         \Log::info('Cache cleared by admin user');
         cache()->flush();
