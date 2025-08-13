@@ -9,6 +9,7 @@ class MailController extends Controller
 {
     public function index()
     {
+        dd('sent');
         $file = storage_path('emails.csv'); // CSV filen
         $csv = Reader::createFromPath($file, 'r');
         $csv->setHeaderOffset(0); // Brug første række som header
