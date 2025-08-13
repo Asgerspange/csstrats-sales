@@ -33,8 +33,9 @@ class fetchStripeData extends Command
      */
     public function handle()
     {
+        \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
-
+        cache()->flush();
         $this->getCustomers();
         $this->getSubscriptions();
         $this->getInvoices();
