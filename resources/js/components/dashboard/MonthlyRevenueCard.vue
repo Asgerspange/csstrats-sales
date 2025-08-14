@@ -12,7 +12,7 @@ const { props } = usePage();
         </CardHeader>
         <CardContent>
             <div class="flex flex-col gap-2">
-                <p class="text-2xl font-bold">${{ props.revenue.total | currency }}</p>
+                <p class="text-2xl font-bold">{{ props.revenue.total | currency }} DKK</p>
                 <p class="text-sm text-muted-foreground">
                     <span v-if="props.revenue.change > 0">+{{ props.revenue.change }}%</span>
                     <span v-else-if="props.revenue.change < 0">{{ props.revenue.change }}%</span>

@@ -16,7 +16,7 @@ const totalRevenueChangeFromLastMonth = (totalRevenue - totalRevenueLastMonth) /
         </CardHeader>
         <CardContent>
             <div class="flex flex-col gap-2">
-                <p class="text-2xl font-bold">${{ totalRevenue | currency }}</p>
+                <p class="text-2xl font-bold">{{ totalRevenue | currency }} DKK</p>
                 <p class="text-sm text-muted-foreground">+{{ totalRevenueChangeFromLastMonth.toFixed(2) }}% from last month</p>
             </div>
         </CardContent>

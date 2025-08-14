@@ -14,7 +14,7 @@ class DashboardController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
         // Try to cache dashboard data for 5 minutes to reduce Stripe API calls
         $now = Carbon::now();
-        $dashboardData = cache()->remember('dashboard_data', now()->addMinutes(60), function () use ($now) {
+        $dashboardData = cache()->rememberForever('dashboard_data', function () use ($now) {
             $startOfThisMonth = $now->copy()->startOfMonth();
             $startOfLastMonth = $now->copy()->subMonth()->startOfMonth();
             $endOfLastMonth = $now->copy()->subMonth()->endOfMonth();
@@ -29,8 +29,25 @@ class DashboardController extends Controller
             'limit' => 100,
             ]);
 
-            $revenueThisMonth = collect($chargesThisMonth->data)->where('paid', true)->sum('amount') / 100;
-            $revenueLastMonth = collect($chargesLastMonth->data)->where('paid', true)->sum('amount') / 100;
+            // Calculate revenue for this month and convert to desired currency (e.g., DKK)
+            $revenueThisMonthRaw = collect($chargesThisMonth->data)->where('paid', true)->sum('amount') / 100;
+            $currency = 'dkk';
+            if (!empty($chargesThisMonth->data)) {
+                $firstCharge = $chargesThisMonth->data[0];
+                $fromCurrency = strtoupper($firstCharge->currency);
+            } else {
+                $fromCurrency = 'USD';
+            }
+            $revenueThisMonth = $this->convertCurrency($revenueThisMonthRaw, $fromCurrency, strtoupper($currency));
+
+            $revenueLastMonthRaw = collect($chargesLastMonth->data)->where('paid', true)->sum('amount') / 100;
+            if (!empty($chargesLastMonth->data)) {
+                $firstChargeLast = $chargesLastMonth->data[0];
+                $fromCurrencyLast = strtoupper($firstChargeLast->currency);
+            } else {
+                $fromCurrencyLast = 'USD';
+            }
+            $revenueLastMonth = $this->convertCurrency($revenueLastMonthRaw, $fromCurrencyLast, strtoupper($currency));
 
             $subscriptionsThisMonth = Subscription::all([
             'created' => ['gte' => $startOfThisMonth->timestamp, 'lte' => $now->timestamp],
@@ -50,22 +67,33 @@ class DashboardController extends Controller
 
             $monthlyRevenue = [];
             for ($i = 1; $i <= 12; $i++) {
-            $start = Carbon::create($now->year, $i, 1)->startOfMonth();
-            $end = $start->copy()->endOfMonth();
+                $start = Carbon::create($now->year, $i, 1)->startOfMonth();
+                $end = $start->copy()->endOfMonth();
 
-            $monthlyCharges = Charge::all([
-                'created' => ['gte' => $start->timestamp, 'lte' => $end->timestamp],
-                'limit' => 100,
-            ]);
+                $monthlyCharges = Charge::all([
+                    'created' => ['gte' => $start->timestamp, 'lte' => $end->timestamp],
+                    'limit' => 100,
+                ]);
 
-            $total = collect($monthlyCharges->data)
-                ->where('paid', true)
-                ->sum('amount') / 100;
+                $total = collect($monthlyCharges->data)
+                    ->where('paid', true)
+                    ->sum('amount') / 100;
 
-            $monthlyRevenue[] = [
-                'month' => $start->format('F'),
-                'revenue' => round($total, 2),
-            ];
+                // Convert to desired currency, e.g., DKK
+                $currency = 'dkk';
+                if (!empty($monthlyCharges->data)) {
+                    $firstCharge = $monthlyCharges->data[0];
+                    $fromCurrency = strtoupper($firstCharge->currency);
+                } else {
+                    $fromCurrency = 'USD';
+                }
+                $convertedTotal = $this->convertCurrency($total, $fromCurrency, strtoupper($currency));
+
+                $monthlyRevenue[] = [
+                    'month' => $start->format('F'),
+                    'revenue' => round($convertedTotal !== false ? $convertedTotal : $total, 2),
+                    'currency' => strtoupper($currency),
+                ];
             }
 
             $recentSales = collect($chargesThisMonth->data)
@@ -75,7 +103,7 @@ class DashboardController extends Controller
                 ->map(function ($charge) {
                     return [
                     'id' => $charge->id,
-                    'amount' => $charge->amount / 100,
+                    'amount' => $charge->amount / 100, strtoupper($charge->currency),
                     'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
                     'customer' => $charge->billing_details['name'] ?? 'Unknown',
                     'currency' => strtoupper($charge->currency),
@@ -135,5 +163,21 @@ class DashboardController extends Controller
             return $new == 0 ? 0 : 100;
         }
         return round((($new - $old) / $old) * 100, 2);
+    }
+
+    private function convertCurrency($amount, $from, $to = 'DKK') {
+        $path = storage_path('app/private/currency_rates.json');
+
+        if (!file_exists($path)) {
+            return false;
+        }
+
+        $rates = json_decode(file_get_contents($path), true);
+
+        if (!isset($rates[$from])) {
+            return false;
+        }
+
+        return $amount * $rates[$from];
     }
 }
