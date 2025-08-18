@@ -28,7 +28,11 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::post('packages', [App\Http\Controllers\PackageController::class, 'store'])->name('packages.store');
     Route::delete('packages/{package}', [App\Http\Controllers\PackageController::class, 'destroy'])->name('packages.destroy');
 
-    Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'index'])->name('massmail.index');
+    Route::get('mails', [App\Http\Controllers\MailController::class, 'index'])->name('mails.index');
+    Route::get('/mails/create', [App\Http\Controllers\MailController::class, 'create'])->name('mails.create');
+    Route::post('/mails', [App\Http\Controllers\MailController::class, 'store'])->name('mails.store');
+
+    // Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'sendMassMail'])->name('massmail.index');
     Route::get('/preview-mail', function () {
         $recipient = ['name' => 'Kunde 1', 'email' => 'test@example.com'];
         return new MassMail($recipient['name'], $recipient['email']);
