@@ -165,16 +165,6 @@ return [
 
     'client' => 'phpredis',
 
-    'options' => [
-        'cluster' => env('REDIS_CLUSTER', 'redis'),
-        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
-        'persistent' => env('REDIS_PERSISTENT', false),
-        'ssl' => [
-            'cafile' => base_path('redis-ca.crt'),
-            'verify_peer' => false,
-        ],
-    ],
-
     'default' => [
         'scheme' => 'tls',
         'host' => env('REDIS_HOST', '138.199.196.239'),
@@ -191,6 +181,19 @@ return [
         'database' => env('REDIS_CACHE_DB', 1),
     ],
 
+    'options' => [
+        'cluster' => env('REDIS_CLUSTER', 'redis'),
+        'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+        'persistent' => env('REDIS_PERSISTENT', false),
+        'ssl' => [
+            'cafile' => base_path('redis-ca.crt'),
+            'local_cert' => base_path('client.crt'),
+            'local_pk' => base_path('client.key'),
+            'verify_peer' => true,
+        ],
+    ],
+
 ],
+
 
 ];
