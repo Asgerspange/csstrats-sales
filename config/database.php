@@ -163,40 +163,32 @@ return [
 
 'redis' => [
 
-    'client' => env('REDIS_CLIENT', 'predis'),
+    'client' => 'phpredis',
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
         'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
         'persistent' => env('REDIS_PERSISTENT', false),
+        'ssl' => [
+            'cafile' => base_path('redis-ca.crt'),
+            'verify_peer' => true,
+        ],
     ],
 
     'default' => [
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'password' => env('REDIS_PASSWORD'),
-        'port' => env('REDIS_PORT', 6379),
-        'database' => env('REDIS_DB', 0),
         'scheme' => 'tls',
-        'parameters' => [
-            'ssl' => [
-                'cafile' => base_path('redis-ca.crt'),
-                'verify_peer' => true,
-            ],
-        ],
+        'host' => env('REDIS_HOST', '138.199.196.239'),
+        'port' => env('REDIS_PORT', 6379),
+        'password' => env('REDIS_PASSWORD'),
+        'database' => env('REDIS_DB', 0),
     ],
 
     'cache' => [
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'password' => env('REDIS_PASSWORD'),
-        'port' => env('REDIS_PORT', 6379),
-        'database' => 1,
         'scheme' => 'tls',
-        'parameters' => [
-            'ssl' => [
-                'cafile' => base_path('redis-ca.crt'),
-                'verify_peer' => true,
-            ],
-        ],
+        'host' => env('REDIS_HOST', '138.199.196.239'),
+        'port' => env('REDIS_PORT', 6379),
+        'password' => env('REDIS_PASSWORD'),
+        'database' => env('REDIS_CACHE_DB', 1),
     ],
 
 ],
