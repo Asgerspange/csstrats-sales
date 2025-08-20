@@ -136,35 +136,53 @@ class MailController extends Controller
                 $mailData = [
                     'subject' => $email->subject,
                     'body' => $email->body,
-                    'recipients' => $email->recipients->toArray(),
                     'sender' => $email->sender
                 ];
 
-                // Send email using Laravel's Mail facade
-                $toRecipients = $email->recipients->where('type', 'to')->pluck('recipient_email')->toArray();
-                $ccRecipients = $email->recipients->where('type', 'cc')->pluck('recipient_email')->toArray();
-                $bccRecipients = $email->recipients->where('type', 'bcc')->pluck('recipient_email')->toArray();
-
-                // Updated to use the selected from_email
-                Mail::send('emails.template', ['mailData' => $mailData], function ($message) use ($toRecipients, $ccRecipients, $bccRecipients, $email) {
-                    $message->from($email->from_email);  // Use the selected from email
-                    $message->to($toRecipients);
-                    if (!empty($ccRecipients)) {
-                        $message->cc($ccRecipients);
+                // Get all recipients
+                $allRecipients = $email->recipients;
+                
+                // Send individual emails to each recipient
+                foreach ($allRecipients as $recipient) {
+                    try {
+                        Mail::send('emails.template', ['mailData' => $mailData], function ($message) use ($recipient, $email) {
+                            $message->from($email->from_email);
+                            
+                            // Send to individual recipient based on their type
+                            switch ($recipient->type) {
+                                case 'to':
+                                    $message->to($recipient->recipient_email, $recipient->recipient_name);
+                                    break;
+                                case 'cc':
+                                    // For CC recipients, you might want to include original TO recipients
+                                    // Or handle CC differently based on your business logic
+                                    $message->to($recipient->recipient_email, $recipient->recipient_name);
+                                    break;
+                                case 'bcc':
+                                    $message->to($recipient->recipient_email, $recipient->recipient_name);
+                                    break;
+                            }
+                            
+                            $message->subject($email->subject);
+                        });
+                        
+                        // Optional: Log successful individual sends
+                        \Log::info("Email sent successfully to: " . $recipient->recipient_email);
+                        
+                    } catch (\Exception $individualError) {
+                        // Log individual recipient failures but continue with others
+                        \Log::error("Failed to send email to {$recipient->recipient_email}: " . $individualError->getMessage());
                     }
-                    if (!empty($bccRecipients)) {
-                        $message->bcc($bccRecipients);
-                    }
-                    $message->subject($email->subject);
-                });
+                }
 
                 // Update sent_at timestamp
                 $email->update(['sent_at' => now()]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Email sent successfully'
+                    'message' => 'Email sent successfully to all recipients'
                 ]);
+                
             } catch (\Exception $e) {
                 \Log::error('Email sending failed: ' . $e->getMessage());
                 
@@ -177,7 +195,6 @@ class MailController extends Controller
                 ], 500);
             }
         }
-
         return redirect()->route('mails.index')->with('success', 'Email saved successfully');
     }
 
