@@ -171,7 +171,7 @@ return [
         'persistent' => env('REDIS_PERSISTENT', false),
         'ssl' => [
             'cafile' => base_path('redis-ca.crt'),
-            'verify_peer' => true,
+            'verify_peer' => false,
         ],
     ],
 
