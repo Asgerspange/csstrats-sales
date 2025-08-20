@@ -31,7 +31,7 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::get('mails', [App\Http\Controllers\MailController::class, 'index'])->name('mails.index');
     Route::get('/mails/create', [App\Http\Controllers\MailController::class, 'create'])->name('mails.create');
     Route::post('/mails', [App\Http\Controllers\MailController::class, 'store'])->name('mails.store');
-
+    Route::get('/mails/{id}', [App\Http\Controllers\MailController::class, 'show'])->name('mails.show');
     // Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'sendMassMail'])->name('massmail.index');
     Route::get('/preview-mail', function () {
         $recipient = ['name' => 'Kunde 1', 'email' => 'test@example.com'];

@@ -26,4 +26,9 @@ class Subscription extends Model
         'plan' => 'array',
         'coupon' => 'array'
     ];
+
+    public function customerRelation()
+    {
+        return $this->belongsTo(Customer::class, 'customer', 'cus_id');
+    }
 }

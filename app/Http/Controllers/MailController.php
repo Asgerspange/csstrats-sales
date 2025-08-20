@@ -6,7 +6,11 @@ use App\Mail\MassMail;
 use Illuminate\Support\Facades\Mail;
 use League\Csv\Reader;
 use Illuminate\Http\Request;
-use App\Models\Email;
+use App\Models\{
+    Email,
+    Subscription,
+    Package
+};
 use App\Models\EmailRecipient;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -59,12 +63,43 @@ class MailController extends Controller
 
     public function create()
     {
-        return Inertia::render('Mails/Create');
+        $fromEmails = [
+            ['email' => 'noreply@csstrats.dk', 'name' => 'No Reply'],
+            ['email' => 'silas@csstrats.dk', 'name' => 'Silas'],
+            ['email' => 'asger@csstrats.dk', 'name' => 'Asger'],
+            ['email' => 'vkaki@csstrats.dk', 'name' => 'Valdemar'],
+            ['email' => 'sales@csstrats.dk', 'name' => 'Sales Team'],
+            ['email' => auth()->user()->email, 'name' => auth()->user()->name],
+        ];
+
+        $subscriptions = Subscription::with('customerRelation')->get();
+        $packages = Package::all()->keyBy('prod_id');
+
+        $groups = $subscriptions->groupBy(function ($subscription) use ($packages) {
+            $productId = $subscription->plan['product'] ?? null;
+            $amount = $subscription->plan['amount'] / 100;
+
+            if (isset($packages[$productId]) && (float) $packages[$productId]->price === (float) $amount) {
+                return $packages[$productId]->name . ' ' . number_format($amount, 2) . ' ' . $subscription->currency;
+            }
+
+            return 'Unknown Package ' . number_format($amount, 2) . ' ' . $subscription->currency;
+        })->map(function ($group) {
+            return $group->map(function ($subscription) {
+                return $subscription->customerRelation;
+            });
+        });
+
+        return Inertia::render('Mails/Create', [
+            'recipientGroups' => $groups,
+            'fromEmails' => $fromEmails,
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'from_email' => 'required|email',  // Add validation for from_email
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
             'recipients' => 'required|array|min:1',
@@ -74,8 +109,9 @@ class MailController extends Controller
             'status' => 'required|in:draft,sent'
         ]);
 
-        // Create email
+        // Create email with from_email
         $email = Email::create([
+            'from_email' => $validated['from_email'],  // Add this field
             'subject' => $validated['subject'],
             'body' => $validated['body'],
             'sender_id' => auth()->id(),
@@ -83,7 +119,7 @@ class MailController extends Controller
             'sent_at' => $validated['status'] === 'sent' ? now() : null,
         ]);
 
-        // Add recipients
+        // Add recipients (same as before)
         foreach ($validated['recipients'] as $recipientData) {
             EmailRecipient::create([
                 'email_id' => $email->id,
@@ -109,8 +145,9 @@ class MailController extends Controller
                 $ccRecipients = $email->recipients->where('type', 'cc')->pluck('recipient_email')->toArray();
                 $bccRecipients = $email->recipients->where('type', 'bcc')->pluck('recipient_email')->toArray();
 
-                // You can customize this part based on your email sending strategy
+                // Updated to use the selected from_email
                 Mail::send('emails.template', ['mailData' => $mailData], function ($message) use ($toRecipients, $ccRecipients, $bccRecipients, $email) {
+                    $message->from($email->from_email);  // Use the selected from email
                     $message->to($toRecipients);
                     if (!empty($ccRecipients)) {
                         $message->cc($ccRecipients);

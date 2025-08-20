@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
@@ -34,8 +34,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage();
 const currentUser = page.props.auth.user;
 
-// Form state
+const recipientGroups = page.props.recipientGroups || {};
+const fromEmails = page.props.fromEmails || []; // Add this to get available from emails
+console.log(recipientGroups);
+const recipientGroup = ref();
+
+// Form state - Updated to include from_email
 const form = reactive({
+    from_email: '', // Add this field
     subject: '',
     body: '',
     recipients: [
@@ -76,6 +82,15 @@ const removeRecipient = (index: number) => {
 // Handle form submission
 const submitForm = () => {
     // Validation
+    if (!form.from_email.trim()) {
+        toast({
+            title: 'Validation Error',
+            description: 'Please select a from email address.',
+            variant: 'destructive'
+        });
+        return;
+    }
+
     if (!form.subject.trim()) {
         toast({
             title: 'Validation Error',
@@ -108,8 +123,9 @@ const submitForm = () => {
         return;
     }
 
-    // Prepare data for submission
+    // Prepare data for submission - Include from_email
     const formData = {
+        from_email: form.from_email,
         subject: form.subject,
         body: form.body,
         recipients: validRecipients,
@@ -144,6 +160,16 @@ const sendEmail = () => {
     // Set status to sent
     form.status = 'sent';
     
+    // Validate from email
+    if (!form.from_email.trim()) {
+        toast({
+            title: 'Validation Error',
+            description: 'Please select a from email address before sending.',
+            variant: 'destructive'
+        });
+        return;
+    }
+    
     // Validate recipients
     const validRecipients = form.recipients.filter(recipient => 
         recipient.email.trim() !== ''
@@ -158,8 +184,9 @@ const sendEmail = () => {
         return;
     }
 
-    // Prepare data for submission
+    // Prepare data for submission - Include from_email
     const formData = {
+        from_email: form.from_email,
         subject: form.subject,
         body: form.body,
         recipients: validRecipients,
@@ -209,7 +236,17 @@ const sendEmail = () => {
 
 // Initialize TinyMCE when component mounts
 onMounted(() => {
-    // TinyMCE will be initialized automatically by the component
+    // Set default from email if available
+    if (fromEmails.length > 0) {
+        form.from_email = fromEmails[0].email;
+    }
+});
+
+watch(recipientGroup, (newGroup) => {
+    const group = recipientGroups[newGroup];
+    if (group) {
+        form.recipients = group.map(customer => ({ email: customer.email, name: '', type: 'to' }));
+    }
 });
 </script>
 
@@ -226,6 +263,25 @@ onMounted(() => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent class="space-y-6">
+                    <!-- From Email Field -->
+                    <div class="space-y-2">
+                        <Label for="from_email">From</Label>
+                        <Select v-model="form.from_email">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select from email address" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="fromEmail in fromEmails"
+                                    :key="fromEmail.email"
+                                    :value="fromEmail.email"
+                                >
+                                    {{ fromEmail.name ? `${fromEmail.name} <${fromEmail.email}>` : fromEmail.email }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <!-- Subject Field -->
                     <div class="space-y-2">
                         <Label for="subject">Subject</Label>
@@ -301,6 +357,20 @@ onMounted(() => {
                         >
                             Add Recipient
                         </Button>
+                        <Select v-model="recipientGroup">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select group" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="(group, key) in recipientGroups"
+                                    :key="key"
+                                    :value="key"
+                                >
+                                    {{ key }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <!-- Status Selection -->
