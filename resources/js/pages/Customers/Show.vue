@@ -97,7 +97,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-lg font-semibold mb-2">Invoices</h2>
                     <InvoiceTable :invoices="props.customer.invoices" />

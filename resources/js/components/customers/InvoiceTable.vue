@@ -13,6 +13,7 @@
             useVueTable,
             type ColumnDef,
             FlexRender,
+            getSortedRowModel
         } from '@tanstack/vue-table';
         import { CalendarSync, CalendarPlus } from "lucide-vue-next";
         import { computed, h } from 'vue';
@@ -113,8 +114,19 @@
                                 if (!transitions) return 'N/A';
 
                                 const status = transitions.finalized_at ? 'Finalized' : 'Pending';
-                                const date = transitions.finalized_at ? new Date(transitions.finalized_at * 1000).toLocaleDateString() : 'N/A';
+                                const date = transitions.finalized_at ? new Date(transitions.finalized_at).toLocaleDateString() : 'N/A';
                                 return `${status} on ${date}`;
+                            },
+                        };
+                    }
+
+                    if (key === 'created') {
+                        return {
+                            header: 'Created',
+                            accessorKey: key,
+                            cell: (info: any) => {
+                                const val = info.getValue();
+                                return new Date(val).toLocaleDateString();
                             },
                         };
                     }
@@ -134,10 +146,17 @@
             get columns() { return tableColumns.value; },
             getCoreRowModel: getCoreRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
+            getSortedRowModel: getSortedRowModel(),
             initialState: {
                 pagination: {
                     pageSize: 10,
                 },
+                sorting: [
+                {
+                    id: 'created', // make sure your column accessorKey is "created"
+                    desc: true, // true = newest first
+                },
+            ],
             },
         });
     </script>
