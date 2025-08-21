@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Customer as CustomerModel;
 use App\Models\Subscription as SubscriptionModel;
-use App\Models\invoices as InvoicesModel;
+use App\Models\Invoices as InvoicesModel;
 use Stripe\Stripe;
 use Stripe\Subscription;
 use Stripe\Customer;
