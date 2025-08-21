@@ -11,7 +11,16 @@ class UserController extends Controller
     public function index()
     {
         $users = cache()->remember('users.all', 60, function () {
-            return User::all();
+            return User::with('grantedAccess.grantedBy')->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'has_granted_access' => $user->has_granted_access,
+                        'granted_access' => $user->grantedAccess,
+                    ];
+                });
         });
 
         return Inertia::render('Users/Index', [

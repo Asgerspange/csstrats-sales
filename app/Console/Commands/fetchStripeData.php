@@ -8,68 +8,106 @@ use App\Models\Subscription as SubscriptionModel;
 use App\Models\invoices as InvoicesModel;
 use Stripe\Stripe;
 use Stripe\Subscription;
-use Stripe\SubscriptionItem;
 use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\Charge;
 use Illuminate\Support\Carbon;
 
-
 class fetchStripeData extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:fetch-stripe-data';
+    protected $signature = 'app:fetch-stripe-data {--skip-sync : Skip syncing data to database}';
+    protected $description = 'Fetch Stripe data and cache dashboard metrics';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+    private $exchangeRates = null;
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
-        cache()->flush();
-        $this->getCustomers();
-        $this->getSubscriptions();
-        $this->getInvoices();
+        
+        // Load exchange rates once
+        $this->loadExchangeRates();
+        
+        if (!$this->option('skip-sync')) {
+            $this->getCustomers();
+            $this->getSubscriptions();
+            $this->getInvoices();
+        }
+        
         $this->getDashboardData();
+        $this->info('Dashboard data cached successfully.');
+    }
+
+    private function loadExchangeRates()
+    {
+        $path = storage_path('app/private/currency_rates.json');
+        
+        if (file_exists($path)) {
+            $this->exchangeRates = json_decode(file_get_contents($path), true);
+        } else {
+            $this->warn('Exchange rates file not found. Using 1:1 conversion.');
+            $this->exchangeRates = [];
+        }
     }
 
     private function getCustomers()
     {
-        $allCustomers = [];
+        $this->info('Fetching customers...');
+        $allCustomers = $this->fetchAllStripeData(Customer::class);
+        $this->info('Total customers fetched: ' . count($allCustomers));
+        
+        $this->syncCustomers($allCustomers);
+        $this->info('Customers synced successfully.');
+    }
+
+    private function getSubscriptions()
+    {
+        $this->info('Fetching subscriptions...');
+        $allSubscriptions = $this->fetchAllStripeData(Subscription::class);
+        $this->info('Total subscriptions fetched: ' . count($allSubscriptions));
+        
+        $this->syncSubscriptions($allSubscriptions);
+        $this->info('Subscriptions synced successfully.');
+    }
+
+    private function getInvoices()
+    {
+        $this->info('Fetching invoices...');
+        $allInvoices = $this->fetchAllStripeData(Invoice::class);
+        $this->info('Total invoices fetched: ' . count($allInvoices));
+        
+        $this->syncInvoices($allInvoices);
+        $this->info('Invoices synced successfully.');
+    }
+
+    private function fetchAllStripeData($stripeClass, array $additionalParams = [])
+    {
+        $allData = [];
         $hasMore = true;
         $startingAfter = null;
 
         while ($hasMore) {
-            $params = ['limit' => 100];
+            $params = array_merge(['limit' => 100], $additionalParams);
+            
             if ($startingAfter) {
                 $params['starting_after'] = $startingAfter;
             }
-            $response = Customer::all($params);
-            foreach ($response->data as $customer) {
-                $allCustomers[] = $customer;
-            }
+            
+            $response = $stripeClass::all($params);
+            $allData = array_merge($allData, $response->data);
+            
             $hasMore = $response->has_more;
-            if ($hasMore && count($response->data) > 0) {
+            if ($hasMore && !empty($response->data)) {
                 $startingAfter = end($response->data)->id;
             }
         }
 
-        $this->info('Total customers fetched: ' . count($allCustomers));
-        $this->info('Inserting customers into the database...');
+        return $allData;
+    }
 
-        foreach ($allCustomers as $customer) {
+    private function syncCustomers($customers)
+    {
+        foreach ($customers as $customer) {
             $existing = CustomerModel::where('cus_id', $customer->id)->first();
 
             $data = [
@@ -87,50 +125,16 @@ class fetchStripeData extends Command
             ];
 
             if ($existing) {
-                $needsUpdate = false;
-                foreach ($data as $key => $value) {
-                    if ($existing->$key != $value) {
-                        $needsUpdate = true;
-                        break;
-                    }
-                }
-
-                if ($needsUpdate) {
-                    $existing->update($data);
-                }
+                $existing->update($data);
             } else {
                 CustomerModel::create(array_merge(['cus_id' => $customer->id], $data));
             }
         }
-
-        $this->info('Customers inserted successfully.');
     }
 
-    private function getSubscriptions()
+    private function syncSubscriptions($subscriptions)
     {
-        $allSubscriptions = [];
-        $hasMore = true;
-        $startingAfter = null;
-
-        while ($hasMore) {
-            $params = ['limit' => 100];
-            if ($startingAfter) {
-                $params['starting_after'] = $startingAfter;
-            }
-            $response = Subscription::all($params);
-            foreach ($response->data as $subscription) {
-                $allSubscriptions[] = $subscription;
-            }
-            $hasMore = $response->has_more;
-            if ($hasMore && count($response->data) > 0) {
-                $startingAfter = end($response->data)->id;
-            }
-        }
-
-        $this->info('Total subscriptions fetched: ' . count($allSubscriptions));
-        $this->info('Inserting subscriptions into the database...');
-
-        foreach ($allSubscriptions as $subscription) {
+        foreach ($subscriptions as $subscription) {
             $existing = SubscriptionModel::where('sub_id', $subscription->id)->first();
 
             $data = [
@@ -147,50 +151,16 @@ class fetchStripeData extends Command
             ];
 
             if ($existing) {
-                $needsUpdate = false;
-                foreach ($data as $key => $value) {
-                    if ($existing->$key != $value) {
-                        $needsUpdate = true;
-                        break;
-                    }
-                }
-
-                if ($needsUpdate) {
-                    $existing->update($data);
-                }
+                $existing->update($data);
             } else {
                 SubscriptionModel::create(array_merge(['sub_id' => $subscription->id], $data));
             }
         }
-
-        $this->info('Subscriptions inserted successfully.');
     }
 
-    private function getInvoices()
+    private function syncInvoices($invoices)
     {
-        $allInvoices = [];
-        $hasMore = true;
-        $startingAfter = null;
-
-        while ($hasMore) {
-            $params = ['limit' => 100];
-            if ($startingAfter) {
-                $params['starting_after'] = $startingAfter;
-            }
-            $response = \Stripe\Invoice::all($params);
-            foreach ($response->data as $invoice) {
-                $allInvoices[] = $invoice;
-            }
-            $hasMore = $response->has_more;
-            if ($hasMore && count($response->data) > 0) {
-                $startingAfter = end($response->data)->id;
-            }
-        }
-
-        $this->info('Total invoices fetched: ' . count($allInvoices));
-        $this->info('Inserting invoices into the database...');
-
-        foreach ($allInvoices as $invoice) {
+        foreach ($invoices as $invoice) {
             $existing = InvoicesModel::where('invoice_id', $invoice->id)->first();
 
             $data = [
@@ -201,7 +171,7 @@ class fetchStripeData extends Command
                 'discounts' => $invoice->discounts,
                 'invoice_pdf' => $invoice->invoice_pdf,
                 'data' => $invoice->lines['data'],
-                'sub_id' => $invoice->parent['subscription_details']['subscription'] ?? null,
+                'sub_id' => $invoice->subscription ?? null,
                 'subtotal' => $invoice->subtotal,
                 'subtotal_excluding_tax' => $invoice->subtotal_excluding_tax,
                 'status_transitions' => $invoice->status_transitions,
@@ -209,152 +179,128 @@ class fetchStripeData extends Command
             ];
 
             if ($existing) {
-                $needsUpdate = false;
-                foreach ($data as $key => $value) {
-                    if ($existing->$key != $value) {
-                        $needsUpdate = true;
-                        break;
-                    }
-                }
-
-                if ($needsUpdate) {
-                    $existing->update($data);
-                }
+                $existing->update($data);
             } else {
                 InvoicesModel::create(array_merge(['invoice_id' => $invoice->id], $data));
             }
         }
-
-        $this->info('Invoices inserted successfully.');
     }
 
     private function getDashboardData()
     {
+        $this->info('Calculating dashboard metrics...');
+        
         $now = Carbon::now();
-        cache()->rememberForever('dashboard_data', function () use ($now) {
-            $startOfThisMonth = $now->copy()->startOfMonth();
-            $startOfLastMonth = $now->copy()->subMonth()->startOfMonth();
-            $endOfLastMonth = $now->copy()->subMonth()->endOfMonth();
+        $startOfThisMonth = $now->copy()->startOfMonth();
+        $startOfLastMonth = $now->copy()->subMonth()->startOfMonth();
+        $endOfLastMonth = $now->copy()->subMonth()->endOfMonth();
+        $startOfYear = $now->copy()->startOfYear();
 
-            $chargesThisMonth = Charge::all([
-            'created' => ['gte' => $startOfThisMonth->timestamp, 'lte' => $now->timestamp],
-            'limit' => 100,
-            ]);
+        // Fetch all charges for the year at once
+        $allCharges = $this->fetchAllStripeData(Charge::class, [
+            'created' => ['gte' => $startOfYear->timestamp, 'lte' => $now->timestamp]
+        ]);
 
-            $chargesLastMonth = Charge::all([
-            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $endOfLastMonth->timestamp],
-            'limit' => 100,
-            ]);
+        // Filter paid charges
+        $paidCharges = collect($allCharges)->where('paid', true);
 
-            // Calculate revenue for this month and convert to desired currency (e.g., DKK)
-            $revenueThisMonthRaw = collect($chargesThisMonth->data)->where('paid', true)->sum('amount') / 100;
-            $currency = 'dkk';
-            if (!empty($chargesThisMonth->data)) {
-                $firstCharge = $chargesThisMonth->data[0];
-                $fromCurrency = strtoupper($firstCharge->currency);
-            } else {
-                $fromCurrency = 'USD';
-            }
-            $revenueThisMonth = $this->convertCurrency($revenueThisMonthRaw, $fromCurrency, strtoupper($currency));
+        // Determine primary currency and target currency
+        $primaryCurrency = $paidCharges->first()->currency ?? 'usd';
+        $targetCurrency = 'dkk';
+        $exchangeRate = $this->getExchangeRate(strtoupper($primaryCurrency), strtoupper($targetCurrency));
 
-            $revenueLastMonthRaw = collect($chargesLastMonth->data)->where('paid', true)->sum('amount') / 100;
-            if (!empty($chargesLastMonth->data)) {
-                $firstChargeLast = $chargesLastMonth->data[0];
-                $fromCurrencyLast = strtoupper($firstChargeLast->currency);
-            } else {
-                $fromCurrencyLast = 'USD';
-            }
-            $revenueLastMonth = $this->convertCurrency($revenueLastMonthRaw, $fromCurrencyLast, strtoupper($currency));
+        // Calculate monthly metrics
+        $chargesThisMonth = $paidCharges->filter(function ($charge) use ($startOfThisMonth, $now) {
+            return $charge->created >= $startOfThisMonth->timestamp && $charge->created <= $now->timestamp;
+        });
 
-            $subscriptionsThisMonth = Subscription::all([
-            'created' => ['gte' => $startOfThisMonth->timestamp, 'lte' => $now->timestamp],
-            'limit' => 100,
-            ]);
+        $chargesLastMonth = $paidCharges->filter(function ($charge) use ($startOfLastMonth, $endOfLastMonth) {
+            return $charge->created >= $startOfLastMonth->timestamp && $charge->created <= $endOfLastMonth->timestamp;
+        });
 
-            $subscriptionsLastMonth = Subscription::all([
-            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $endOfLastMonth->timestamp],
-            'limit' => 100,
-            ]);
+        $revenueThisMonth = ($chargesThisMonth->sum('amount') / 100) * $exchangeRate;
+        $revenueLastMonth = ($chargesLastMonth->sum('amount') / 100) * $exchangeRate;
 
-            $subscriptionsCountThisMonth = count($subscriptionsThisMonth->data);
-            $subscriptionsCountLastMonth = count($subscriptionsLastMonth->data);
+        // Fetch subscriptions for the period
+        $allSubscriptions = $this->fetchAllStripeData(Subscription::class, [
+            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $now->timestamp]
+        ]);
 
-            $salesThisMonth = collect($chargesThisMonth->data)->where('paid', true)->count();
-            $salesLastMonth = collect($chargesLastMonth->data)->where('paid', true)->count();
+        $subscriptionsThisMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfThisMonth, $now) {
+            return $subscription->created >= $startOfThisMonth->timestamp && $subscription->created <= $now->timestamp;
+        });
 
-            $monthlyRevenue = [];
-            for ($i = 1; $i <= 12; $i++) {
-                $start = Carbon::create($now->year, $i, 1)->startOfMonth();
-                $end = $start->copy()->endOfMonth();
+        $subscriptionsLastMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfLastMonth, $endOfLastMonth) {
+            return $subscription->created >= $startOfLastMonth->timestamp && $subscription->created <= $endOfLastMonth->timestamp;
+        });
 
-                $monthlyCharges = Charge::all([
-                    'created' => ['gte' => $start->timestamp, 'lte' => $end->timestamp],
-                    'limit' => 100,
-                ]);
+        // Calculate monthly revenue breakdown
+        $monthlyRevenue = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthStart = Carbon::create($now->year, $i, 1)->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
 
-                $total = collect($monthlyCharges->data)
-                    ->where('paid', true)
-                    ->sum('amount') / 100;
+            $monthlyTotal = $paidCharges->filter(function ($charge) use ($monthStart, $monthEnd) {
+                return $charge->created >= $monthStart->timestamp && $charge->created <= $monthEnd->timestamp;
+            })->sum('amount') / 100;
 
-                // Convert to desired currency, e.g., DKK
-                $currency = 'dkk';
-                if (!empty($monthlyCharges->data)) {
-                    $firstCharge = $monthlyCharges->data[0];
-                    $fromCurrency = strtoupper($firstCharge->currency);
-                } else {
-                    $fromCurrency = 'USD';
-                }
-                $convertedTotal = $this->convertCurrency($total, $fromCurrency, strtoupper($currency));
+            $monthlyRevenue[] = [
+                'month' => $monthStart->format('F'),
+                'revenue' => round($monthlyTotal * $exchangeRate, 2),
+                'currency' => strtoupper($targetCurrency),
+            ];
+        }
 
-                $monthlyRevenue[] = [
-                    'month' => $start->format('F'),
-                    'revenue' => round($convertedTotal !== false ? $convertedTotal : $total, 2),
-                    'currency' => strtoupper($currency),
-                ];
-            }
-
-            $recentSales = collect($chargesThisMonth->data)
-                ->where('paid', true)
-                ->sortByDesc('created')
-                ->take(10)
-                ->map(function ($charge) {
-                    return [
+        // Get recent sales
+        $recentSales = $chargesThisMonth
+            ->sortByDesc('created')
+            ->take(10)
+            ->map(function ($charge) use ($targetCurrency, $exchangeRate) {
+                return [
                     'id' => $charge->id,
-                    'amount' => $charge->amount / 100, strtoupper($charge->currency),
+                    'amount' => round(($charge->amount / 100) * $exchangeRate, 2),
                     'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
-                    'customer' => $charge->billing_details['name'] ?? 'Unknown',
-                    'currency' => strtoupper($charge->currency),
+                    'customer' => $charge->billing_details->name ?? 'Unknown',
+                    'currency' => strtoupper($targetCurrency),
                     'description' => $charge->description ?? 'No description',
-                    ];
-                })
+                ];
+            })
             ->values();
 
-            return [
-                'revenueThisMonth' => $revenueThisMonth,
-                'revenueLastMonth' => $revenueLastMonth,
-                'subscriptionsCountThisMonth' => $subscriptionsCountThisMonth,
-                'subscriptionsCountLastMonth' => $subscriptionsCountLastMonth,
-                'salesThisMonth' => $salesThisMonth,
-                'salesLastMonth' => $salesLastMonth,
-                'monthlyRevenue' => $monthlyRevenue,
-                'recentSales' => $recentSales,
-            ];
-        });
+        $dashboardData = [
+            'revenueThisMonth' => round($revenueThisMonth, 2),
+            'revenueLastMonth' => round($revenueLastMonth, 2),
+            'subscriptionsCountThisMonth' => $subscriptionsThisMonth->count(),
+            'subscriptionsCountLastMonth' => $subscriptionsLastMonth->count(),
+            'salesThisMonth' => $chargesThisMonth->count(),
+            'salesLastMonth' => $chargesLastMonth->count(),
+            'monthlyRevenue' => $monthlyRevenue,
+            'recentSales' => $recentSales,
+            'lastUpdated' => now()->toISOString(),
+        ];
+
+        // Cache the data
+        cache()->put('dashboard_data', $dashboardData, now()->addHours(1));
+        
+        $this->info('Dashboard data calculated and cached.');
     }
 
-    private function convertCurrency($amount, $from, $to = 'DKK') {
-        $path = storage_path('app/private/currency_rates.json');
-
-        if (!file_exists($path)) {
-            return false;
+    private function getExchangeRate($fromCurrency, $toCurrency)
+    {
+        if ($fromCurrency === $toCurrency) {
+            return 1.0;
         }
 
-        $rates = json_decode(file_get_contents($path), true);
-
-        if (!isset($rates[$from])) {
-            return false;
+        if (!$this->exchangeRates || !isset($this->exchangeRates[$fromCurrency])) {
+            return 1.0;
         }
 
-        return $amount * $rates[$from];
+        return $this->exchangeRates[$fromCurrency];
+    }
+
+    private function convertCurrency($amount, $from, $to = 'DKK')
+    {
+        $rate = $this->getExchangeRate($from, $to);
+        return $amount * $rate;
     }
 }
