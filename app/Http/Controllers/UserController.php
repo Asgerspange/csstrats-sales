@@ -30,10 +30,13 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user->load(['grantedAccess.grantedBy']);
+
         return Inertia::render('Users/Show', [
             'user' => $user
         ]);
     }
+
 
     public function grantAccess(Request $request)
     {
