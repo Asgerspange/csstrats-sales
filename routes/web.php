@@ -33,6 +33,7 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::post('/mails', [App\Http\Controllers\MailController::class, 'store'])->name('mails.store');
     Route::get('/mails/{id}', [App\Http\Controllers\MailController::class, 'show'])->name('mails.show');
     // Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'sendMassMail'])->name('massmail.index');
+
     Route::get('/preview-mail', function () {
         $recipient = ['name' => 'Kunde 1', 'email' => 'test@example.com'];
         return new MassMail($recipient['name'], $recipient['email']);
@@ -41,6 +42,12 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
         \Log::info('Cache cleared by admin user');
         cache()->flush();
     })->name('clear-cache');
+
+    //Admin routes
+    Route::get('admin/users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index');
+    Route::get('admin/users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('admin.users.show');
+
+    Route::post('admin/grant-access', [App\Http\Controllers\UserController::class, 'grantAccess'])->name('admin.grant-access');
 });
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

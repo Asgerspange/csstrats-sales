@@ -160,38 +160,70 @@ return [
     | such as Memcached. You may define your connection settings here.
     |
     */
-
 'redis' => [
-
-    'client' => 'phpredis',
-
-    'default' => [
-        'scheme' => 'tls',
-        'host' => env('REDIS_HOST', '138.199.196.239'),
-        'port' => env('REDIS_PORT', 6379),
-        'password' => env('REDIS_PASSWORD'),
-        'database' => env('REDIS_DB', 0),
-    ],
-
-    'cache' => [
-        'scheme' => 'tls',
-        'host' => env('REDIS_HOST', '138.199.196.239'),
-        'port' => env('REDIS_PORT', 6379),
-        'password' => env('REDIS_PASSWORD'),
-        'database' => env('REDIS_CACHE_DB', 1),
-    ],
+    'client' => env('REDIS_CLIENT', 'phpredis'),
 
     'options' => [
         'cluster' => env('REDIS_CLUSTER', 'redis'),
         'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
-        'persistent' => env('REDIS_PERSISTENT', false),
-        'ssl' => [
-            'verify_peer' => true,
+        
+        // PHPRedis specific options
+        'parameters' => [
+            'timeout' => 2.0,
+            'read_timeout' => 2.0,
+            'retry_interval' => 100,
+        ],
+        
+        // Connection pool options
+        'pool' => [
+            'min_connections' => 1,
+            'max_connections' => 10,
+            'retry_delay' => 10,
         ],
     ],
 
-],
+    'default' => [
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('REDIS_PASSWORD'),
+        'port' => env('REDIS_PORT', '6379'),
+        'database' => env('REDIS_DB', '0'),
+        
+        // PHPRedis specific options
+        'read_timeout' => 60,
+        'timeout' => 2.0,
+        'persistent' => false,
+        'retry_interval' => 100,
+        
+        // Authentication for Redis 6.0+ ACL
+        'context' => [
+            'auth' => [env('REDIS_USERNAME', 'default'), env('REDIS_PASSWORD')],
+        ],
+    ],
 
+    'cache' => [
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('REDIS_PASSWORD'),
+        'port' => env('REDIS_PORT', '6379'),
+        'database' => env('REDIS_CACHE_DB', '1'),
+        'read_timeout' => 60,
+        'timeout' => 2.0,
+    ],
+
+    'session' => [
+        'url' => env('REDIS_URL'),
+        'host' => env('REDIS_HOST', '127.0.0.1'),
+        'username' => env('REDIS_USERNAME'),
+        'password' => env('REDIS_PASSWORD'),
+        'port' => env('REDIS_PORT', '6379'),
+        'database' => env('REDIS_SESSION_DB', '2'),
+        'read_timeout' => 60,
+        'timeout' => 2.0,
+    ],
+],
 
 
 ];
