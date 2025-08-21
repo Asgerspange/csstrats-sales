@@ -166,4 +166,24 @@ class OrganisationController extends Controller
             'organisation' => $organisation,
         ]);
     }
+
+    public function updateNotes(Request $request, Organisation $organisation)
+    {
+        $validatedData = $request->validate([
+            'notes' => 'required|string|max:1000',
+        ]);
+
+        $organisation->notes = $validatedData['notes'];
+        $organisation->save();
+
+        cache()->forget("organisations.show.{$organisation->id}");
+        cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
+            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+        });
+
+        return response()->json([
+            'message' => 'Notes updated successfully',
+            'organisation' => $organisation,
+        ]);
+    }
 }

@@ -11,7 +11,7 @@ class Organisation extends Model
 {
     use SoftDeletes;
     protected $connection = 'mysql_sales';
-    protected $fillable = ['name', 'cvr', 'country', 'address', 'type', 'zip', 'cus_id'];
+    protected $fillable = ['name', 'cvr', 'country', 'address', 'type', 'zip', 'cus_id', 'notes'];
 
     public function customer()
     {

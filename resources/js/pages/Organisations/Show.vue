@@ -7,6 +7,7 @@
     import { Label } from "@/components/ui/label";
     import { Button } from "@/components/ui/button";
     import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    import { Textarea } from "@/components/ui/textarea";
     import { CreateContactDialog } from '@/components/contacts';
 
     const props = defineProps({
@@ -110,6 +111,17 @@
             body: JSON.stringify({ contact_id: contactId }),
         });
     };
+
+    const updateNotes = () => {
+        fetch(`/organisations/${props.organisation.id}/update-notes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({ notes: props.organisation.notes }),
+        });
+    };
 </script>
 
 <template>
@@ -171,6 +183,12 @@
                                 <SelectItem value="school">School</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <Label class="font-semibold capitalize">Noter</Label>
+                        <Textarea v-model="organisation.notes" class="mb-2" placeholder="Skriv noter her..." />
+                        <Button @click="updateNotes()">Gem noter</Button>
                     </div>
                 </div>
 

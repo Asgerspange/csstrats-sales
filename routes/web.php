@@ -19,6 +19,7 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::post('organisations/{organisation}/change-customer', [App\Http\Controllers\OrganisationController::class, 'changeCustomer'])->name('organisations.change-customer');
     Route::post('organisations/{organisation}/make-primary-contact', [App\Http\Controllers\OrganisationController::class, 'makePrimaryContact'])->name('organisations.make-primary-contact');
     Route::post('organisations/{organisation}/remove-contact', [App\Http\Controllers\OrganisationController::class, 'removeContact'])->name('organisations.remove-contact');
+    Route::post('organisations/{organisation}/update-notes', [App\Http\Controllers\OrganisationController::class, 'updateNotes'])->name('organisations.update-notes');
 
     Route::get('contacts', [App\Http\Controllers\ContactController::class, 'index'])->name('contacts.index');
     Route::post('contacts', [App\Http\Controllers\ContactController::class, 'store'])->name('contacts.store');
