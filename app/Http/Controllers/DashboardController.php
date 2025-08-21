@@ -12,160 +12,180 @@ class DashboardController extends Controller
     public function index()
     {
         Stripe::setApiKey(config('services.stripe.secret'));
-        // Try to cache dashboard data for 5 minutes to reduce Stripe API calls
         $now = Carbon::now();
-        $dashboardData = cache()->rememberForever('dashboard_data', function () use ($now) {
+        
+        set_time_limit(100);
+        $dashboardData = cache()->remember('dashboard_data', 3600, function () use ($now) {
             $startOfThisMonth = $now->copy()->startOfMonth();
             $startOfLastMonth = $now->copy()->subMonth()->startOfMonth();
-            $endOfLastMonth = $now->copy()->subMonth()->endOfMonth();
+            $startOfYear = $now->copy()->startOfYear();
 
-            $chargesThisMonth = Charge::all([
-            'created' => ['gte' => $startOfThisMonth->timestamp, 'lte' => $now->timestamp],
-            'limit' => 100,
-            ]);
+            $allCharges = $this->getAllChargesForPeriod($startOfYear->timestamp, $now->timestamp);
+            $allSubscriptions = $this->getAllSubscriptionsForPeriod($startOfYear->timestamp, $now->timestamp);
 
-            $chargesLastMonth = Charge::all([
-            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $endOfLastMonth->timestamp],
-            'limit' => 100,
-            ]);
+            $paidCharges = collect($allCharges)->where('paid', true);
 
-            // Calculate revenue for this month and convert to desired currency (e.g., DKK)
-            $revenueThisMonthRaw = collect($chargesThisMonth->data)->where('paid', true)->sum('amount') / 100;
-            $currency = 'dkk';
-            if (!empty($chargesThisMonth->data)) {
-                $firstCharge = $chargesThisMonth->data[0];
-                $fromCurrency = strtoupper($firstCharge->currency);
-            } else {
-                $fromCurrency = 'USD';
-            }
-            $revenueThisMonth = $this->convertCurrency($revenueThisMonthRaw, $fromCurrency, strtoupper($currency));
+            $primaryCurrency = $paidCharges->first()->currency ?? 'usd';
+            $targetCurrency = 'dkk';
+            $exchangeRate = $this->getExchangeRate(strtoupper($primaryCurrency), strtoupper($targetCurrency));
 
-            $revenueLastMonthRaw = collect($chargesLastMonth->data)->where('paid', true)->sum('amount') / 100;
-            if (!empty($chargesLastMonth->data)) {
-                $firstChargeLast = $chargesLastMonth->data[0];
-                $fromCurrencyLast = strtoupper($firstChargeLast->currency);
-            } else {
-                $fromCurrencyLast = 'USD';
-            }
-            $revenueLastMonth = $this->convertCurrency($revenueLastMonthRaw, $fromCurrencyLast, strtoupper($currency));
+            $chargesThisMonth = $paidCharges->filter(function ($charge) use ($startOfThisMonth, $now) {
+                return $charge->created >= $startOfThisMonth->timestamp && $charge->created <= $now->timestamp;
+            });
 
-            $subscriptionsThisMonth = Subscription::all([
-            'created' => ['gte' => $startOfThisMonth->timestamp, 'lte' => $now->timestamp],
-            'limit' => 100,
-            ]);
+            $chargesLastMonth = $paidCharges->filter(function ($charge) use ($startOfLastMonth, $startOfThisMonth) {
+                return $charge->created >= $startOfLastMonth->timestamp && $charge->created < $startOfThisMonth->timestamp;
+            });
 
-            $subscriptionsLastMonth = Subscription::all([
-            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $endOfLastMonth->timestamp],
-            'limit' => 100,
-            ]);
+            $revenueThisMonth = ($chargesThisMonth->sum('amount') / 100) * $exchangeRate;
+            $revenueLastMonth = ($chargesLastMonth->sum('amount') / 100) * $exchangeRate;
 
-            $subscriptionsCountThisMonth = count($subscriptionsThisMonth->data);
-            $subscriptionsCountLastMonth = count($subscriptionsLastMonth->data);
+            $subscriptionsThisMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfThisMonth, $now) {
+                return $subscription->created >= $startOfThisMonth->timestamp && $subscription->created <= $now->timestamp;
+            });
 
-            $salesThisMonth = collect($chargesThisMonth->data)->where('paid', true)->count();
-            $salesLastMonth = collect($chargesLastMonth->data)->where('paid', true)->count();
+            $subscriptionsLastMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfLastMonth, $startOfThisMonth) {
+                return $subscription->created >= $startOfLastMonth->timestamp && $subscription->created < $startOfThisMonth->timestamp;
+            });
 
             $monthlyRevenue = [];
             for ($i = 1; $i <= 12; $i++) {
-                $start = Carbon::create($now->year, $i, 1)->startOfMonth();
-                $end = $start->copy()->endOfMonth();
+                $monthStart = Carbon::create($now->year, $i, 1)->startOfMonth();
+                $monthEnd = $monthStart->copy()->endOfMonth();
 
-                $monthlyCharges = Charge::all([
-                    'created' => ['gte' => $start->timestamp, 'lte' => $end->timestamp],
-                    'limit' => 100,
-                ]);
-
-                $total = collect($monthlyCharges->data)
-                    ->where('paid', true)
-                    ->sum('amount') / 100;
-
-                // Convert to desired currency, e.g., DKK
-                $currency = 'dkk';
-                if (!empty($monthlyCharges->data)) {
-                    $firstCharge = $monthlyCharges->data[0];
-                    $fromCurrency = strtoupper($firstCharge->currency);
-                } else {
-                    $fromCurrency = 'USD';
-                }
-                $convertedTotal = $this->convertCurrency($total, $fromCurrency, strtoupper($currency));
+                $monthlyTotal = $paidCharges->filter(function ($charge) use ($monthStart, $monthEnd) {
+                    return $charge->created >= $monthStart->timestamp && $charge->created <= $monthEnd->timestamp;
+                })->sum('amount') / 100;
 
                 $monthlyRevenue[] = [
-                    'month' => $start->format('F'),
-                    'revenue' => round($convertedTotal !== false ? $convertedTotal : $total, 2),
-                    'currency' => strtoupper($currency),
+                    'month' => $monthStart->format('F'),
+                    'revenue' => round($monthlyTotal * $exchangeRate, 2),
+                    'currency' => strtoupper($targetCurrency),
                 ];
             }
 
-            $recentSales = collect($chargesThisMonth->data)
-                ->where('paid', true)
+            $recentSales = $chargesThisMonth
                 ->sortByDesc('created')
                 ->take(10)
-                ->map(function ($charge) {
+                ->map(function ($charge) use ($targetCurrency, $exchangeRate) {
                     return [
-                    'id' => $charge->id,
-                    'amount' => $charge->amount / 100, strtoupper($charge->currency),
-                    'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
-                    'customer' => $charge->billing_details['name'] ?? 'Unknown',
-                    'currency' => strtoupper($charge->currency),
-                    'description' => $charge->description ?? 'No description',
+                        'id' => $charge->id,
+                        'amount' => round(($charge->amount / 100) * $exchangeRate, 2),
+                        'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
+                        'customer' => $charge->billing_details->name ?? 'Unknown',
+                        'currency' => strtoupper($targetCurrency),
+                        'description' => $charge->description ?? 'No description',
                     ];
                 })
-            ->values();
+                ->values();
 
             return [
-                'revenueThisMonth' => $revenueThisMonth,
-                'revenueLastMonth' => $revenueLastMonth,
-                'subscriptionsCountThisMonth' => $subscriptionsCountThisMonth,
-                'subscriptionsCountLastMonth' => $subscriptionsCountLastMonth,
-                'salesThisMonth' => $salesThisMonth,
-                'salesLastMonth' => $salesLastMonth,
+                'revenueThisMonth' => round($revenueThisMonth, 2),
+                'revenueLastMonth' => round($revenueLastMonth, 2),
+                'subscriptionsCountThisMonth' => $subscriptionsThisMonth->count(),
+                'subscriptionsCountLastMonth' => $subscriptionsLastMonth->count(),
+                'salesThisMonth' => $chargesThisMonth->count(),
+                'salesLastMonth' => $chargesLastMonth->count(),
                 'monthlyRevenue' => $monthlyRevenue,
                 'recentSales' => $recentSales,
             ];
         });
 
-        $revenueThisMonth = $dashboardData['revenueThisMonth'];
-        $revenueLastMonth = $dashboardData['revenueLastMonth'];
-        $revenueChange = $this->percentChange($revenueLastMonth, $revenueThisMonth);
-
-        $subscriptionsCountThisMonth = $dashboardData['subscriptionsCountThisMonth'];
-        $subscriptionsCountLastMonth = $dashboardData['subscriptionsCountLastMonth'];
-        $subscriptionsChange = $this->percentChange($subscriptionsCountLastMonth, $subscriptionsCountThisMonth);
-
-        $salesThisMonth = $dashboardData['salesThisMonth'];
-        $salesLastMonth = $dashboardData['salesLastMonth'];
-        $salesChange = $this->percentChange($salesLastMonth, $salesThisMonth);
-
-        $monthlyRevenue = $dashboardData['monthlyRevenue'];
-        $recentSales = $dashboardData['recentSales'];
+        $revenueChange = $this->percentChange($dashboardData['revenueLastMonth'], $dashboardData['revenueThisMonth']);
+        $subscriptionsChange = $this->percentChange($dashboardData['subscriptionsCountLastMonth'], $dashboardData['subscriptionsCountThisMonth']);
+        $salesChange = $this->percentChange($dashboardData['salesLastMonth'], $dashboardData['salesThisMonth']);
 
         return Inertia::render('Dashboard', [
             'revenue' => [
-                'total' => $revenueThisMonth,
+                'total' => $dashboardData['revenueThisMonth'],
                 'change' => $revenueChange,
             ],
             'subscriptions' => [
-                'count' => $subscriptionsCountThisMonth,
+                'count' => $dashboardData['subscriptionsCountThisMonth'],
                 'change' => $subscriptionsChange,
             ],
             'sales' => [
-                'count' => $salesThisMonth,
+                'count' => $dashboardData['salesThisMonth'],
                 'change' => $salesChange,
             ],
-            'monthlyRevenue' => $monthlyRevenue,
-            'recentSales' => $recentSales,
+            'monthlyRevenue' => $dashboardData['monthlyRevenue'],
+            'recentSales' => $dashboardData['recentSales'],
         ]);
     }
 
-    private function percentChange($old, $new)
+    private function getAllChargesForPeriod($startTimestamp, $endTimestamp)
     {
-        if ($old == 0) {
-            return $new == 0 ? 0 : 100;
+        $allCharges = [];
+        $hasMore = true;
+        $startingAfter = null;
+
+        while ($hasMore) {
+            $params = [
+                'created' => ['gte' => $startTimestamp, 'lte' => $endTimestamp],
+                'limit' => 100,
+            ];
+
+            if ($startingAfter) {
+                $params['starting_after'] = $startingAfter;
+            }
+
+            $charges = Charge::all($params);
+            $allCharges = array_merge($allCharges, $charges->data);
+
+            $hasMore = $charges->has_more;
+            if ($hasMore && !empty($charges->data)) {
+                $startingAfter = end($charges->data)->id;
+            }
         }
-        return round((($new - $old) / $old) * 100, 2);
+
+        return $allCharges;
     }
 
-    private function convertCurrency($amount, $from, $to = 'DKK') {
+    private function getAllSubscriptionsForPeriod($startTimestamp, $endTimestamp)
+    {
+        $allSubscriptions = [];
+        $hasMore = true;
+        $startingAfter = null;
+
+        while ($hasMore) {
+            $params = [
+                'created' => ['gte' => $startTimestamp, 'lte' => $endTimestamp],
+                'limit' => 100,
+            ];
+
+            if ($startingAfter) {
+                $params['starting_after'] = $startingAfter;
+            }
+
+            $subscriptions = Subscription::all($params);
+            $allSubscriptions = array_merge($allSubscriptions, $subscriptions->data);
+
+            $hasMore = $subscriptions->has_more;
+            if ($hasMore && !empty($subscriptions->data)) {
+                $startingAfter = end($subscriptions->data)->id;
+            }
+        }
+
+        return $allSubscriptions;
+    }
+
+    private function getExchangeRate($fromCurrency, $toCurrency)
+    {
+        if ($fromCurrency === $toCurrency) {
+            return 1.0;
+        }
+
+        // Cache exchange rates for 30 minutes
+        $cacheKey = "exchange_rate_{$fromCurrency}_{$toCurrency}";
+        
+        return cache()->remember($cacheKey, 1800, function () use ($fromCurrency, $toCurrency) {
+            $rate = $this->convertCurrencyRate($fromCurrency, $toCurrency);
+            return $rate !== false ? $rate : 1.0;
+        });
+    }
+
+    private function convertCurrencyRate($from, $to = 'DKK')
+    {
         $path = storage_path('app/private/currency_rates.json');
 
         if (!file_exists($path)) {
@@ -178,6 +198,20 @@ class DashboardController extends Controller
             return false;
         }
 
-        return $amount * $rates[$from];
+        return $rates[$from];
+    }
+
+    private function convertCurrency($amount, $from, $to = 'DKK')
+    {
+        $rate = $this->getExchangeRate($from, $to);
+        return $amount * $rate;
+    }
+
+    private function percentChange($old, $new)
+    {
+        if ($old == 0) {
+            return $new == 0 ? 0 : 100;
+        }
+        return round((($new - $old) / $old) * 100, 2);
     }
 }
