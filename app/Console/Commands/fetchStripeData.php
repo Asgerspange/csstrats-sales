@@ -35,7 +35,7 @@ class fetchStripeData extends Command
             $this->getInvoices();
         }
         
-        // $this->getDashboardData();
+        $this->getDashboardData();
         $this->info('Dashboard data cached successfully.');
     }
 
