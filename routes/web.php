@@ -21,6 +21,10 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::post('organisations/{organisation}/remove-contact', [App\Http\Controllers\OrganisationController::class, 'removeContact'])->name('organisations.remove-contact');
     Route::post('organisations/{organisation}/update-notes', [App\Http\Controllers\OrganisationController::class, 'updateNotes'])->name('organisations.update-notes');
 
+    Route::get('billing/calendar', [App\Http\Controllers\BillingController::class, 'calendar'])->name('billing.calendar');
+    Route::get('/billing/date/{date}', [App\Http\Controllers\BillingController::class, 'dayAnalysis'])
+        ->name('billing.day');
+
     Route::get('contacts', [App\Http\Controllers\ContactController::class, 'index'])->name('contacts.index');
     Route::post('contacts', [App\Http\Controllers\ContactController::class, 'store'])->name('contacts.store');
 

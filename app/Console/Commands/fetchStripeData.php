@@ -24,7 +24,8 @@ class fetchStripeData extends Command
     {
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
-        
+
+        cache()->flush();
         // Load exchange rates once
         $this->loadExchangeRates();
         
@@ -34,7 +35,7 @@ class fetchStripeData extends Command
             $this->getInvoices();
         }
         
-        $this->getDashboardData();
+        // $this->getDashboardData();
         $this->info('Dashboard data cached successfully.');
     }
 
@@ -162,7 +163,42 @@ class fetchStripeData extends Command
     {
         foreach ($invoices as $invoice) {
             $existing = InvoicesModel::where('invoice_id', $invoice->id)->first();
+            $plan = $invoice->lines['data'][0]->plan ?? null;
 
+            if (isset($plan['product']) && $plan['product'] == 'prod_QN02xiFwIakgsY') {
+                if ($existing) {
+                    $existing->delete();
+                }
+
+                continue;
+            }
+
+            $excludedPlanIds = [
+                'price_1PWG0uEDh9RJGTHcldLDFUoQ',
+                'price_1PglYgEDh9RJGTHcMU02xRxs',
+                'price_1PgoePEDh9RJGTHc2MUwwuir',
+            ];
+            if (isset($plan['id']) && in_array($plan['id'], $excludedPlanIds)) {
+                if ($existing) {
+                    $existing->delete();
+                }
+                continue;
+            }
+            
+            $interval = $plan['interval'] ?? null;
+            if (!$interval) {
+                if ($existing) {
+                    $existing->delete();
+                }
+
+                continue;
+            }
+
+            $intervalCount = $plan['interval_count'] ?? null;
+            if ($intervalCount == 6) {
+                $interval = 'semi-annually';
+            }
+            
             $data = [
                 'billing_reason' => $invoice->billing_reason,
                 'collection_method' => $invoice->collection_method,
@@ -175,6 +211,7 @@ class fetchStripeData extends Command
                 'subtotal' => $invoice->subtotal,
                 'subtotal_excluding_tax' => $invoice->subtotal_excluding_tax,
                 'status_transitions' => $invoice->status_transitions,
+                'payment_interval' => $interval,
                 'created' => $invoice->created
             ];
 
@@ -222,15 +259,15 @@ class fetchStripeData extends Command
         $revenueLastMonth = ($chargesLastMonth->sum('amount') / 100) * $exchangeRate;
 
         // Fetch subscriptions for the period
-        $allSubscriptions = $this->fetchAllStripeData(Subscription::class, [
+        $subscriptionsThisYear = $this->fetchAllStripeData(Subscription::class, [
             'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $now->timestamp]
         ]);
 
-        $subscriptionsThisMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfThisMonth, $now) {
+        $subscriptionsThisMonth = collect($subscriptionsThisYear)->filter(function ($subscription) use ($startOfThisMonth, $now) {
             return $subscription->created >= $startOfThisMonth->timestamp && $subscription->created <= $now->timestamp;
         });
 
-        $subscriptionsLastMonth = collect($allSubscriptions)->filter(function ($subscription) use ($startOfLastMonth, $endOfLastMonth) {
+        $subscriptionsLastMonth = collect($subscriptionsThisYear)->filter(function ($subscription) use ($startOfLastMonth, $endOfLastMonth) {
             return $subscription->created >= $startOfLastMonth->timestamp && $subscription->created <= $endOfLastMonth->timestamp;
         });
 
@@ -255,17 +292,42 @@ class fetchStripeData extends Command
         $recentSales = $chargesThisMonth
             ->sortByDesc('created')
             ->take(10)
-            ->map(function ($charge) use ($targetCurrency, $exchangeRate) {
+            ->map(function ($charge) {
                 return [
                     'id' => $charge->id,
-                    'amount' => round(($charge->amount / 100) * $exchangeRate, 2),
+                    'amount' => ($charge->amount / 100),
                     'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
                     'customer' => $charge->billing_details->name ?? 'Unknown',
-                    'currency' => strtoupper($targetCurrency),
+                    'currency' => $charge->currency,
                     'description' => $charge->description ?? 'No description',
                 ];
             })
             ->values();
+
+        $allSubscriptions = $this->fetchAllStripeData(Subscription::class, [
+            'created' => ['gte' => Carbon::create(2024, 1, 1, 0, 0, 0)->timestamp, 'lte' => $now->timestamp]
+        ]);
+
+        $allPackages = \App\Models\Package::getTrackedPackages();
+        $packages = $allPackages->map(function ($package) use ($allSubscriptions) {
+            $subscribers = collect($allSubscriptions)->filter(function ($subscription) use ($package) {
+                return isset($subscription->items->data[0]->price->id) && $subscription->items->data[0]->price->id === $package->stripe_price_id;
+            });
+
+            if ($subscribers->count() === 0) {
+                return null;
+            }
+
+            return [
+                'id' => $package->id,
+                'name' => $package->name,
+                'price' => $package->price,
+                'subscribers' => $subscribers->count(),
+                'currency' => $subscribers->pluck('currency')->first(),
+                'max_teams' => $package->max_teams,
+                'max_members' => $package->max_members,
+            ];
+        })->filter();
 
         $dashboardData = [
             'revenueThisMonth' => round($revenueThisMonth, 2),
@@ -277,6 +339,7 @@ class fetchStripeData extends Command
             'monthlyRevenue' => $monthlyRevenue,
             'recentSales' => $recentSales,
             'lastUpdated' => now()->toISOString(),
+            'packages' => $packages
         ];
 
         // Cache the data

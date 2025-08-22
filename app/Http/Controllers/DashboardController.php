@@ -50,6 +50,7 @@ class DashboardController extends Controller
             ],
             'monthlyRevenue' => $dashboardData['monthlyRevenue'] ?? [],
             'recentSales' => $dashboardData['recentSales'] ?? [],
+            'packages' => $dashboardData['packages'] ?? [],
         ]);
     }
 

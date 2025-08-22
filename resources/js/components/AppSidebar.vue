@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, User, Users, Contact, Package, Mail } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, User, Users, Contact, Package, Mail, Receipt } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { ref, onMounted } from 'vue';
 
@@ -39,6 +39,11 @@ const mainNavItems: NavItem[] = [
         title: 'Mails',
         href: '/mails',
         icon: Mail,
+    },
+    {
+        title: 'Billing',
+        href: '/billing/calendar',
+        icon: Receipt,
     }
 ];
 

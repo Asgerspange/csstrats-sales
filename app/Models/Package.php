@@ -34,6 +34,7 @@ class Package extends Model
         'hide',
         'is_custom',
         'organisation_id',
+        'is_tracked',
     ];
 
     /**
@@ -52,6 +53,7 @@ class Package extends Model
         'organisation_id' => 'integer',
         'is_custom' => 'boolean',
         'features' => 'json',
+        'is_tracked' => 'boolean',
     ];
 
     /**
@@ -82,6 +84,24 @@ class Package extends Model
     public static function getCustomPackages()
     {
         return self::where('is_custom', 1)->get();
+    }
+    
+    /**
+     * Get all non custom packages
+     * 
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getNonCustomPackages()
+    {
+        return self::where('is_custom', 0)->get();
+    }
+
+    /**
+     * Get all tracked packages
+     */
+    public static function getTrackedPackages()
+    {
+        return self::where('is_tracked', 1)->get();
     }
 
     /**

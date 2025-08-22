@@ -20,6 +20,7 @@ class Invoices extends Model
         'subtotal',
         'subtotal_excluding_tax',
         'status_transitions',
+        'payment_interval',
         'created'
     ];
 
@@ -31,7 +32,7 @@ class Invoices extends Model
         'created' => 'datetime',
     ];
 
-    public function customer()
+    public function customerRelation()
     {
         return $this->belongsTo(Customer::class, 'customer', 'cus_id');
     }

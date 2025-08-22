@@ -2,12 +2,15 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
-import RevenueCard from '@/components/dashboard/RevenueCard.vue';
-import SubscriptionCard from '@/components/dashboard/SubscriptionCard.vue';
-import SalesCard from '@/components/dashboard/SalesCard.vue';
-import MonthlyRevenueCard from '@/components/dashboard/MonthlyRevenueCard.vue';
-import RevenueGraph from '@/components/dashboard/RevenueGraph.vue';
-import TransactionTimeline from '@/components/dashboard/TransactionTimeline.vue';
+import {
+    RevenueCard,
+    SubscriptionCard,
+    SalesCard,
+    MonthlyRevenueCard,
+    RevenueGraph,
+    TransactionTimeline,
+    PackageTable
+} from '@/components/dashboard';
 
 const { props } = usePage();
 console.log('Dashboard props:', props);
@@ -45,6 +48,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="relative">
                     <TransactionTimeline />
                 </div>
+            </div>
+            <div class="relative">
+                <PackageTable />
             </div>
         </div>
     </AppLayout>
