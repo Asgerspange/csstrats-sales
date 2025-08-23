@@ -28,11 +28,9 @@ class OrganisationController extends Controller
         $cacheKey = "organisations.show.{$organisation->id}";
 
         $organisation = cache()->remember($cacheKey, now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+            return $this->getOrganisation($organisation);
         });
-        $organisations = cache()->remember('organisations.index', now()->addMinutes(60), function () {
-            return Organisation::all();
-        });
+
         $cachedCustomers = cache()->remember('customers.index', now()->addMinutes(60), function () {
             $customers =  Customer::with('user', 'subscriptions')->get();
 
@@ -105,7 +103,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+            return $this->getOrganisation($organisation);
         });
 
         return response()->json([
@@ -129,7 +127,7 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+            return $this->getOrganisation($organisation);
         });
 
         return response()->json([
@@ -158,7 +156,7 @@ class OrganisationController extends Controller
         });
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+            return $this->getOrganisation($organisation);
         });
 
         return response()->json([
@@ -178,12 +176,32 @@ class OrganisationController extends Controller
 
         cache()->forget("organisations.show.{$organisation->id}");
         cache()->remember("organisations.show.{$organisation->id}", now()->addMinutes(60), function () use ($organisation) {
-            return $organisation->load('customer', 'contacts.customer', 'contacts.contact', 'packages');
+            return $this->getOrganisation($organisation);
         });
 
         return response()->json([
             'message' => 'Notes updated successfully',
             'organisation' => $organisation,
         ]);
+    }
+
+    private function getOrganisation(Organisation $organisation): Organisation
+    {
+        return tap($organisation->load([
+            'customer.user.ownedTeams' => function ($query) {
+                $query->withCount('users')                   // number of users in the team
+                    ->withCount('stratbooks');            // number of stratbooks in the team
+            },
+            'contacts.customer',
+            'contacts.contact',
+            'packages',
+        ]), function ($org) {
+            if ($org->customer && $org->customer->user) {
+                foreach ($org->customer->user->ownedTeams as $team) {
+                    // Sum of tactics across all stratbooks
+                    $team->tactics_count = $team->stratbooks()->withCount('tactics')->get()->sum('tactics_count');
+                }
+            }
+        });
     }
 }

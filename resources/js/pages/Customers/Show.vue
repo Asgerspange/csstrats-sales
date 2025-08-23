@@ -18,7 +18,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Customer Details" />
     <AppLayout :breadcrumbs>
         <div class="flex flex-col gap-6 p-6">
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center text-center">
                     <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-600">
@@ -44,8 +43,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <p class="uppercase">{{ props.customer.currency }}</p>
                     </div>
                     <div>
-                        <h2 class="text-sm font-semibold text-gray-500">Balance</h2>
-                        <p>{{ props.customer.balance }}</p>
+                        <h2 class="text-sm font-semibold text-gray-500">Organisation</h2>
+                        <p>{{ props.customer?.organisation?.name || 'No Organisation' }}</p>
                     </div>
                     <div>
                         <h2 class="text-sm font-semibold text-gray-500">Created</h2>

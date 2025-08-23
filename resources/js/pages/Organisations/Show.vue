@@ -2,14 +2,16 @@
     import AppLayout from '@/layouts/AppLayout.vue';
     import { type BreadcrumbItem } from '@/types';
     import { Head } from '@inertiajs/vue3';
-    import { ref } from 'vue';
+    import { ref, computed } from 'vue';
     import { Input } from "@/components/ui/input";
     import { Label } from "@/components/ui/label";
     import { Button } from "@/components/ui/button";
     import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+    import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger } from "@/components/ui/combobox"
     import { Textarea } from "@/components/ui/textarea";
     import { CreateContactDialog } from '@/components/contacts';
-
+    import { Check, ChevronsUpDown, Search } from "lucide-vue-next"
+    import { cn } from '@/lib/utils';
     const props = defineProps({
         organisation: {
             type: Object,
@@ -20,6 +22,7 @@
             required: true
         }
     });
+
     let originalCustomer = props.organisation.customer;
 
     console.log('Organisation:', props.organisation);
@@ -151,20 +154,40 @@
                     </div>
                     <div class="flex flex-col">
                         <Label class="font-semibold capitalize">Kunde</Label>
-                        <Select v-model="organisation.customer" class="w-full" @update:model-value="updateCustomer()">
-                            <SelectTrigger class="col-span-3 w-full">
-                                <SelectValue :placeholder="organisation.customer?.name || 'Vælg kunde'" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="customer in props.customers"
-                                    :key="customer.id"
-                                    :value="customer"
-                                >
-                                    {{ customer.name }} - {{ customer.email }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Combobox v-model="organisation.customer" by="id" @update:model-value="updateCustomer">
+                            <ComboboxAnchor as-child class="!w-full">
+                                <ComboboxTrigger as-child>
+                                    <Button variant="outline" class="justify-between w-full">
+                                        {{ organisation.customer?.name || 'Vælg kunde' }}
+                                        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </ComboboxTrigger>
+                            </ComboboxAnchor>
+                            <ComboboxList class="!w-full">
+                                 <div class="relative w-full max-w-sm items-center">
+                                    <ComboboxInput class="pl-9 focus-visible:ring-0 border-0 border-b rounded-none h-10" placeholder="Search customers" />
+                                    <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
+                                    <Search class="size-4 text-muted-foreground" />
+                                    </span>
+                                </div>
+
+                                <ComboboxEmpty>
+                                    <div class="p-2 text-sm text-gray-500">Ingen kunder fundet.</div>
+                                </ComboboxEmpty>
+                                <ComboboxGroup>
+                                    <ComboboxItem
+                                        v-for="customer in props.customers"
+                                        :key="customer.id"
+                                        :value="customer"
+                                    >
+                                        {{ customer.name }} - {{ customer.email }}
+                                        <ComboboxItemIndicator>
+                                            <Check :class="cn('ml-auto h-4 w-4')" />
+                                        </ComboboxItemIndicator>
+                                    </ComboboxItem>
+                                </ComboboxGroup>
+                            </ComboboxList>
+                        </Combobox>
                     </div>
                     <div class="flex flex-col">
                         <Label class="font-semibold capitalize">Valuta</Label>
@@ -193,7 +216,7 @@
                 </div>
 
                 <div class="flex flex-col gap-6">
-                    <div class="bg-white rounded-xl p-4 shadow flex-1 overflow-auto max-h-[400px]">
+                    <div class="bg-white rounded-xl p-4 shadow flex-1 overflow-auto max-h-[400px] h-100">
                         <h2 class="font-semibold mb-2">Opgaveliste</h2>
                         <table class="min-w-full border text-sm">
                             <thead class="bg-gray-100 sticky top-0">
@@ -228,91 +251,119 @@
                             <CreateContactDialog :organisation="organisation" />
                         </div>
 
-                        <table class="min-w-full border text-sm">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="p-2 text-left">Kontaktperson</th>
-                                    <th class="p-2 text-left">Jobfunktion</th>
-                                    <th class="p-2 text-left">Telefon</th>
-                                    <th class="p-2 text-left">Email</th>
-                                    <th class="p-2 text-left">Handling</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    class="border-t"
-                                    :class="{
-                                        'bg-green-100': organisation.contacts?.find(c => c.cus_id === organisation.customer?.id && c.is_primary)
-                                    }"
-                                >
-                                    <td class="p-2">{{ organisation.customer?.name }}</td>
-                                    <td class="p-2">Stripe bruger</td>
-                                    <td class="p-2">Ikke angivet</td>
-                                    <td class="p-2">{{ organisation.customer?.email || 'Ikke angivet' }}</td>
-                                    <td class="p-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            @click="makePrimaryContact(organisation.contacts?.find(c => c.cus_id === organisation.customer?.id)?.id)"
-                                        >
-                                            Sæt primær
-                                        </Button>
-                                    </td>
-                                </tr>
-                                <template v-for="(contact, index) in organisation.contacts" :key="index">
-                                    <tr class="border-t" :class="{
-                                        'bg-green-100': contact.is_primary
-                                    }" v-if="contact.cus_id !== organisation.customer.id">
-                                        <td class="p-2">{{ contact?.customer?.name ?? contact.contact?.name }}</td>
-                                        <td class="p-2">{{ contact.contact?.job ?? 'Ikke angivet' }}</td>
-                                        <td class="p-2">{{ contact.contact?.phone ?? 'Ikke angivet' }}</td>
-                                        <td class="p-2">{{ contact.customer?.email ?? contact.contact?.email ?? 'Ikke angivet' }}</td>
-                                        <td class="p-2 flex gap-2">
-                                            <Button variant="outline" size="sm" @click="makePrimaryContact(contact.id)">Sæt primær</Button>
-                                            <Button variant="destructive" size="sm" @click="removeContact(contact.id)">Fjern</Button>
+                        <div class="max-h-[200px] h-100 overflow-y-auto">
+                            <table class="min-w-full border text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="p-2 text-left">Kontaktperson</th>
+                                        <th class="p-2 text-left">Jobfunktion</th>
+                                        <th class="p-2 text-left">Telefon</th>
+                                        <th class="p-2 text-left">Email</th>
+                                        <th class="p-2 text-left">Handling</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        class="border-t"
+                                        :class="{
+                                            'bg-green-100': organisation.contacts?.find(c => c.cus_id === organisation.customer?.id && c.is_primary)
+                                        }"
+                                    >
+                                        <td class="p-2">{{ organisation.customer?.name }}</td>
+                                        <td class="p-2">Stripe bruger</td>
+                                        <td class="p-2">Ikke angivet</td>
+                                        <td class="p-2">{{ organisation.customer?.email || 'Ikke angivet' }}</td>
+                                        <td class="p-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                @click="makePrimaryContact(organisation.contacts?.find(c => c.cus_id === organisation.customer?.id)?.id)"
+                                            >
+                                                Sæt primær
+                                            </Button>
                                         </td>
                                     </tr>
-                                </template>
-                            </tbody>
-                        </table>
+                                    <template v-for="(contact, index) in organisation.contacts" :key="index">
+                                        <tr class="border-t" :class="{
+                                            'bg-green-100': contact.is_primary
+                                        }" v-if="contact.cus_id !== organisation.customer.id">
+                                            <td class="p-2">{{ contact?.customer?.name ?? contact.contact?.name }}</td>
+                                            <td class="p-2">{{ contact.contact?.job ?? 'Ikke angivet' }}</td>
+                                            <td class="p-2">{{ contact.contact?.phone ?? 'Ikke angivet' }}</td>
+                                            <td class="p-2">{{ contact.customer?.email ?? contact.contact?.email ?? 'Ikke angivet' }}</td>
+                                            <td class="p-2 flex gap-2">
+                                                <Button variant="outline" size="sm" @click="makePrimaryContact(contact.id)">Sæt primær</Button>
+                                                <Button variant="destructive" size="sm" @click="removeContact(contact.id)">Fjern</Button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
+
                     <!-- Agreements -->
-                    <div class="bg-white rounded-xl p-4 shadow">
+                    <div class="bg-white rounded-xl p-4 shadow max-h-[200px] overflow-y-auto h-100">
                         <h2 class="font-semibold mb-2">Aftaler</h2>
                         <div v-if="agreements.length === 0" class="text-gray-500">Ingen aftaler</div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-4 shadow">
-                <h2 class="font-semibold mb-2">Packages</h2>
-                <table class="min-w-full border text-sm">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-2 text-left">Name</th>
-                            <th class="p-2 text-left">Price</th>
-                            <th class="p-2 text-left">Monthly Price</th>
-                            <th class="p-2 text-left">Max Members</th>
-                            <th class="p-2 text-left">Max Teams</th>
-                            <th class="p-2 text-left">Max Stratbooks</th>
-                            <!-- <th class="p-2 text-left">Actions</th> -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="p in organisation.packages" :key="p.id" class="border-t">
-                            <td class="p-2">{{ p.name }}</td>
-                            <td class="p-2">€{{ p.price }}</td>
-                            <td class="p-2">€{{ p.monthly_price }}</td>
-                            <td class="p-2">{{ p.max_members }}</td>
-                            <td class="p-2">{{ p.max_teams }}</td>
-                            <td class="p-2">{{ p.max_stratbooks }}</td>
-                            <!-- <td class="p-2">
-                                <Button variant="destructive" size="sm">Slet</Button>
-                            </td> -->
-                        </tr>
-                    </tbody>
-                </table>
-                <!-- <Button variant="outline" size="sm" @click="createPackage">Opret pakke</Button> -->
+            <div class="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mt-6">
+                <div class="bg-white rounded-xl p-4 shadow">
+                    <h2 class="font-semibold mb-2">Hold</h2>
+                    <table class="min-w-full border text-sm" v-if="props.organisation?.customer?.user?.owned_teams.length">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-2 text-left">Navn</th>
+                                <th class="p-2 text-left">Medlemmer</th>
+                                <th class="p-2 text-left">Stratbooks</th>
+                                <th class="p-2 text-left">Strats</th>
+                                <!-- <th class="p-2 text-left">Actions</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t" v-for="team in props.organisation?.customer?.user?.owned_teams" :key="team.id">
+                                <td class="p-2">{{ team.name }}</td>
+                                <td class="p-2">{{ team.users_count }}</td>
+                                <td class="p-2">{{ team.stratbooks_count }}</td>
+                                <td class="p-2">{{ team.tactics_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div v-if="props.organisation?.customer?.user?.owned_teams.length === 0" class="text-gray-500">Ingen hold</div>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow">
+                    <h2 class="font-semibold mb-2">Pakker</h2>
+                    <table class="min-w-full border text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-2 text-left">Navn</th>
+                                <th class="p-2 text-left">Pris</th>
+                                <th class="p-2 text-left">Månedlig Pris</th>
+                                <th class="p-2 text-left">Maks. Medlemmer</th>
+                                <th class="p-2 text-left">Maks. Teams</th>
+                                <th class="p-2 text-left">Maks. Stratbooks</th>
+                                <!-- <th class="p-2 text-left">Actions</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in organisation.packages" :key="p.id" class="border-t">
+                                <td class="p-2">{{ p.name }}</td>
+                                <td class="p-2">€{{ p.price }}</td>
+                                <td class="p-2">€{{ p.monthly_price }}</td>
+                                <td class="p-2">{{ p.max_members }}</td>
+                                <td class="p-2">{{ p.max_teams }}</td>
+                                <td class="p-2">{{ p.max_stratbooks }}</td>
+                                <!-- <td class="p-2">
+                                    <Button variant="destructive" size="sm">Slet</Button>
+                                </td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- <Button variant="outline" size="sm" @click="createPackage">Opret pakke</Button> -->
+                </div>
             </div>
         </div>
     </AppLayout>

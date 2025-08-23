@@ -22,8 +22,9 @@ class CustomerController extends Controller
     public function show(Customer $customer)
     {
         $customer = cache()->remember("customers.show.{$customer->cus_id}", now()->addMinutes(60), function () use ($customer) {
-            return $customer->load('user', 'subscriptions', 'invoices');
+            return $customer->load('user', 'subscriptions', 'invoices', 'organisation');
         });
+
         return Inertia::render('Customers/Show', [
             'customer' => $customer,
         ]);

@@ -51,4 +51,9 @@ class Customer extends Model
     {
         return $this->hasMany(Invoices::class, 'customer', 'cus_id');
     }
+
+    public function organisation()
+    {
+        return $this->hasOne(Organisation::class, 'cus_id', 'id');
+    }
 }
