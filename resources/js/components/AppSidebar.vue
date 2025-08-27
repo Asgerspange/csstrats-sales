@@ -32,6 +32,11 @@ const adminNavItems: NavItem[] = [
 
 const salesNavItems: NavItem[] = [
     {
+        title: 'Dashboard',
+        href: '/sales',
+        icon: LayoutGrid,
+    },
+    {
         title: 'Customers',
         href: '/sales/customers',
         icon: User,
@@ -70,13 +75,13 @@ const footerNavItems: NavItem[] = [
         icon: Folder,
     },
     {
-        title: 'Admin',
-        href: '/admin/users',
+        title: 'Sales',
+        href: '/sales',
         icon: Folder,
     },
     {
-        title: 'Sales',
-        href: '/sales/customers',
+        title: 'Admin',
+        href: '/admin/users',
         icon: Folder,
     },
     // {

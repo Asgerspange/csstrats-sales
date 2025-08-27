@@ -13,6 +13,8 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::get('/mails/{id}', [App\Http\Controllers\MailController::class, 'show'])->name('mails.show');
 
     Route::prefix('sales')->group(function () {
+        Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('sales.index');
+
         Route::get('customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('sales.customers.index');
         Route::get('customers/{customer}', [App\Http\Controllers\CustomerController::class, 'show'])->name('sales.customers.show');
         Route::get('packages', [App\Http\Controllers\PackageController::class, 'index'])->name('sales.packages.index');
