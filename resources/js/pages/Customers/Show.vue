@@ -2,15 +2,15 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import InvoiceTable from '@/components/customers/InvoiceTable.vue';
+import InvoiceTable from '@/components/sales/customers/InvoiceTable.vue';
 
 const props = defineProps<{
     customer: any;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Customers', href: '/customers' },
-    { title: props.customer?.name || props.customer?.cus_id, href: '/customers/' + props.customer.id },
+    { title: 'Customers', href: '/sales/customers' },
+    { title: props.customer?.name || props.customer?.cus_id, href: '/sales/customers/' + props.customer.id },
 ];
 </script>
 

@@ -16,35 +16,10 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Stripe Customers',
-        href: '/customers',
-        icon: User,
-    },
-    {
-        title: 'Organisations',
-        href: '/organisations',
-        icon: Users,
-    },
-    {
-        title: 'Contacts',
-        href: '/contacts',
-        icon: Contact,
-    },
-    {
-        title: 'Packages',
-        href: '/packages',
-        icon: Package,
-    },
-    {
         title: 'Mails',
         href: '/mails',
         icon: Mail,
     },
-    {
-        title: 'Billing',
-        href: '/billing/calendar',
-        icon: Receipt,
-    }
 ];
 
 const adminNavItems: NavItem[] = [
@@ -52,54 +27,80 @@ const adminNavItems: NavItem[] = [
         title: 'Users',
         href: '/admin/users',
         icon: Users,
-    },
-    {
-        title: 'Roles',
-        href: '/admin/roles',
-        icon: Users,
-    },
-    {
-        title: 'Permissions',
-        href: '/admin/permissions',
-        icon: Users,
-    },
+    }
 ];
 
-const footerNavItems: NavItem[] = [
+const salesNavItems: NavItem[] = [
     {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        title: 'Customers',
+        href: '/sales/customers',
+        icon: User,
+    },
+    {
+        title: 'Organisations',
+        href: '/sales/organisations',
+        icon: Users,
+    },
+    {
+        title: 'Contacts',
+        href: '/sales/contacts',
+        icon: Contact,
+    },
+    {
+        title: 'Packages',
+        href: '/sales/packages',
+        icon: Package,
+    },
+    {
+        title: 'Billing',
+        href: '/sales/billing',
+        icon: Receipt,
+    }
+]
+
+const footerNavItems: NavItem[] = [
+    // {
+    //     title: 'Github Repo',
+    //     href: 'https://github.com/laravel/vue-starter-kit',
+    //     icon: Folder,
+    // },
+    {
+        title: 'Dashboard',
+        href: '/',
         icon: Folder,
     },
     {
         title: 'Admin',
         href: '/admin/users',
-        icon: BookOpen,
-    },
-    {
-        title: 'Docs',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
-
-const adminFooterNavItems: NavItem[] = [
-    {
-        title: 'Sales',
-        href: '/',
         icon: Folder,
     },
+    {
+        title: 'Sales',
+        href: '/sales/customers',
+        icon: Folder,
+    },
+    // {
+    //     title: 'Docs',
+    //     href: 'https://laravel.com/docs/starter-kits#vue',
+    //     icon: BookOpen,
+    // },
 ];
 
 const selectedItems = ref(mainNavItems);
 const selectedFooterItems = ref(footerNavItems);
 onMounted(() => {
-    if (route().current().includes('admin')) {
+    let currentRoute = route().current();
+    console.log(currentRoute)
+    if (currentRoute.includes('admin')) {
         selectedItems.value = adminNavItems;
-        selectedFooterItems.value = adminFooterNavItems;
+        selectedFooterItems.value = footerNavItems.filter(item => item.title !== 'Admin');
+    } else if(currentRoute.includes('sales')) {
+        selectedItems.value = salesNavItems;
+        selectedFooterItems.value = footerNavItems.filter(item => item.title !== 'Sales');
     } else {
         selectedItems.value = mainNavItems;
-        selectedFooterItems.value = footerNavItems;
+        selectedFooterItems.value = footerNavItems.filter(item => item.title !== 'Dashboard');
+
     }
 });
 </script>

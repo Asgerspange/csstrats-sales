@@ -1,25 +1,21 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
-    import { OrganisationTable, OrganisationFilters } from '@/components/organisations';
-    import { ref, watch } from 'vue';
-
-    import { Button } from '@/components/ui/button';
-
-    import { DialogTrigger } from "@/components/ui/dialog"
+    import { OrganisationTable, OrganisationFilters } from '@/components/sales/organisations';
+    import { ref } from 'vue';
     import { type BreadcrumbItem } from '@/types';
-    import { Head, usePage } from '@inertiajs/vue3';
+    import { Head } from '@inertiajs/vue3';
     import {
         DropdownMenu,
         DropdownMenuCheckboxItem,
         DropdownMenuContent,
         DropdownMenuTrigger,
     } from "@/components/ui/dropdown-menu"
-    import CreateOrganisationDialog from '@/components/organisations/CreateOrganisationDialog.vue';
+    import CreateOrganisationDialog from '@/components/sales/organisations/CreateOrganisationDialog.vue';
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Organisations',
-            href: '/organisations',
+            href: '/sales/organisations',
         },
     ];
 

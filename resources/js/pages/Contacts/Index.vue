@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
-    import { ContactTable, ContactFilters, CreateContactDialog } from '@/components/contacts';
+    import { ContactTable, ContactFilters, CreateContactDialog } from '@/components/sales/contacts';
     import { ref, watch } from 'vue';
 
     import { Button } from '@/components/ui/button';

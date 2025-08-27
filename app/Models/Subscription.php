@@ -13,6 +13,7 @@ class Subscription extends Model
         'customer',
         'latest_invoice',
         'plan',
+        'items',
         'status',
         'current_period_start',
         'current_period_end',
@@ -24,7 +25,8 @@ class Subscription extends Model
 
     protected $casts = [
         'plan' => 'array',
-        'coupon' => 'array'
+        'coupon' => 'array',
+        'items' => 'array'
     ];
 
     public function customerRelation()

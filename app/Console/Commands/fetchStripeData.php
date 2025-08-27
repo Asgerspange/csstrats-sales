@@ -145,6 +145,7 @@ class fetchStripeData extends Command
                 'latest_invoice' => $subscription->latest_invoice,
                 'plan' => $subscription->plan,
                 'status' => $subscription->status,
+                'items' => $subscription->items,
                 'current_period_start' => $subscription->current_period_start,
                 'current_period_end' => $subscription->current_period_end,
                 'coupon' => $subscription?->discount?->coupon,
@@ -225,6 +226,7 @@ class fetchStripeData extends Command
 
     private function getDashboardData()
     {
+        set_time_limit(120);
         $this->info('Calculating dashboard metrics...');
         
         $now = Carbon::now();
@@ -234,34 +236,41 @@ class fetchStripeData extends Command
         $startOfYear = $now->copy()->startOfYear();
 
         // Fetch all charges for the year at once
-        $allCharges = $this->fetchAllStripeData(Charge::class, [
-            'created' => ['gte' => $startOfYear->timestamp, 'lte' => $now->timestamp]
-        ]);
+        $invoices = \App\Models\Invoices::with('customerRelation')->where('created', '>=', $startOfYear)->where('created', '<=', $now)->get();
 
-        // Filter paid charges
-        $paidCharges = collect($allCharges)->where('paid', true);
+        $allInvoices = collect($invoices);
 
         // Determine primary currency and target currency
-        $primaryCurrency = $paidCharges->first()->currency ?? 'usd';
+        $primaryCurrency = $allInvoices->first()->currency ?? 'usd';
         $targetCurrency = 'dkk';
         $exchangeRate = $this->getExchangeRate(strtoupper($primaryCurrency), strtoupper($targetCurrency));
+        $allInvoices->each(function ($invoice) {
+            if ($invoice->discounts) {
+                $invoice->subtotal = $invoice->subtotal - ($invoice->data[0]['discount_amounts'][0]['amount'] ?? 0);
+            }
+            $invoice->status = $invoice->status_transitions['paid_at'] ? 'succeeded' : 'failed';
+        });
 
         // Calculate monthly metrics
-        $chargesThisMonth = $paidCharges->filter(function ($charge) use ($startOfThisMonth, $now) {
-            return $charge->created >= $startOfThisMonth->timestamp && $charge->created <= $now->timestamp;
+        $paidInvoicesThisMonth = $allInvoices->filter(function ($invoice) use ($startOfThisMonth, $now) {
+            $createdAt = Carbon::parse($invoice->created);
+            return $createdAt->between($startOfThisMonth, $now) && $invoice->status === 'succeeded';
         });
 
-        $chargesLastMonth = $paidCharges->filter(function ($charge) use ($startOfLastMonth, $endOfLastMonth) {
-            return $charge->created >= $startOfLastMonth->timestamp && $charge->created <= $endOfLastMonth->timestamp;
+        $paidInvoicesLastMonth = $allInvoices->filter(function ($invoice) use ($startOfLastMonth, $endOfLastMonth) {
+            $createdAt = Carbon::parse($invoice->created);
+            return $createdAt->between($startOfLastMonth, $endOfLastMonth) && $invoice->status === 'succeeded';
         });
 
-        $revenueThisMonth = ($chargesThisMonth->sum('amount') / 100) * $exchangeRate;
-        $revenueLastMonth = ($chargesLastMonth->sum('amount') / 100) * $exchangeRate;
+        $revenueThisMonth = ($paidInvoicesThisMonth->sum('subtotal') / 100) * $exchangeRate;
+        $revenueLastMonth = ($paidInvoicesLastMonth->sum('subtotal') / 100) * $exchangeRate;
 
         // Fetch subscriptions for the period
-        $subscriptionsThisYear = $this->fetchAllStripeData(Subscription::class, [
-            'created' => ['gte' => $startOfLastMonth->timestamp, 'lte' => $now->timestamp]
-        ]);
+        $allSubscriptions = collect(\App\Models\Subscription::all());
+
+        $subscriptionsThisYear = $allSubscriptions->filter(function ($subscription) use ($startOfLastMonth, $now) {
+            return $subscription->created >= $startOfLastMonth->timestamp && $subscription->created <= $now->timestamp;
+        });
 
         $subscriptionsThisMonth = collect($subscriptionsThisYear)->filter(function ($subscription) use ($startOfThisMonth, $now) {
             return $subscription->created >= $startOfThisMonth->timestamp && $subscription->created <= $now->timestamp;
@@ -277,9 +286,10 @@ class fetchStripeData extends Command
             $monthStart = Carbon::create($now->year, $i, 1)->startOfMonth();
             $monthEnd = $monthStart->copy()->endOfMonth();
 
-            $monthlyTotal = $paidCharges->filter(function ($charge) use ($monthStart, $monthEnd) {
-                return $charge->created >= $monthStart->timestamp && $charge->created <= $monthEnd->timestamp;
-            })->sum('amount') / 100;
+            $monthlyTotal = $allInvoices->filter(function ($invoice) use ($monthStart, $monthEnd) {
+                $createdAt = Carbon::parse($invoice->created);
+                return $createdAt->between($monthStart, $monthEnd);
+            })->sum('subtotal') / 100;
 
             $monthlyRevenue[] = [
                 'month' => $monthStart->format('F'),
@@ -289,29 +299,26 @@ class fetchStripeData extends Command
         }
 
         // Get recent sales
-        $recentSales = $chargesThisMonth
+        $recentSales = $paidInvoicesThisMonth
             ->sortByDesc('created')
             ->take(10)
-            ->map(function ($charge) {
+            ->map(function ($invoice) {
                 return [
-                    'id' => $charge->id,
-                    'amount' => ($charge->amount / 100),
-                    'created_at' => Carbon::createFromTimestamp($charge->created)->toDateTimeString(),
-                    'customer' => $charge->billing_details->name ?? 'Unknown',
-                    'currency' => $charge->currency,
-                    'description' => $charge->description ?? 'No description',
+                    'id' => $invoice->id,
+                    'amount' => ($invoice->subtotal / 100),
+                    'created_at' => Carbon::createFromTimestamp($invoice->created)->toDateTimeString(),
+                    'customer' => $invoice?->customerRelation?->name ?? 'External Sale',
+                    'currency' => $invoice->currency,
+                    'description' => $invoice->billing_reason ?? 'No description',
+                    'status' => $invoice->status ?? 'unknown'
                 ];
             })
             ->values();
 
-        $allSubscriptions = $this->fetchAllStripeData(Subscription::class, [
-            'created' => ['gte' => Carbon::create(2024, 1, 1, 0, 0, 0)->timestamp, 'lte' => $now->timestamp]
-        ]);
-
         $allPackages = \App\Models\Package::getTrackedPackages();
         $packages = $allPackages->map(function ($package) use ($allSubscriptions) {
             $subscribers = collect($allSubscriptions)->filter(function ($subscription) use ($package) {
-                return isset($subscription->items->data[0]->price->id) && $subscription->items->data[0]->price->id === $package->stripe_price_id;
+                return isset($subscription['items']['data'][0]['price']['id']) && $subscription['items']['data'][0]['price']['id'] === $package->stripe_price_id;
             });
 
             if ($subscribers->count() === 0) {
@@ -334,8 +341,8 @@ class fetchStripeData extends Command
             'revenueLastMonth' => round($revenueLastMonth, 2),
             'subscriptionsCountThisMonth' => $subscriptionsThisMonth->count(),
             'subscriptionsCountLastMonth' => $subscriptionsLastMonth->count(),
-            'salesThisMonth' => $chargesThisMonth->count(),
-            'salesLastMonth' => $chargesLastMonth->count(),
+            'salesThisMonth' => $paidInvoicesThisMonth->count(),
+            'salesLastMonth' => $paidInvoicesLastMonth->count(),
             'monthlyRevenue' => $monthlyRevenue,
             'recentSales' => $recentSales,
             'lastUpdated' => now()->toISOString(),

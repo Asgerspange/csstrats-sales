@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
-    import { PackageTable, PackageFilters, CreatePackageDialog } from '@/components/packages';
+    import { PackageTable, PackageFilters, CreatePackageDialog } from '@/components/sales/packages';
     import { ref, watch } from 'vue';
     import { type BreadcrumbItem } from '@/types';
     import { Head, usePage } from '@inertiajs/vue3';

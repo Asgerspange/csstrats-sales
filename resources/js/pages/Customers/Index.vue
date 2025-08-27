@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
-    import { CustomerTable, CustomerFilters } from '@/components/customers';
+    import { CustomerTable, CustomerFilters } from '@/components/sales/customers';
     import { ref } from 'vue';
 
     import { type BreadcrumbItem } from '@/types';
@@ -15,7 +15,7 @@
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Customers',
-            href: '/customers',
+            href: '/sales/customers',
         },
     ];
 

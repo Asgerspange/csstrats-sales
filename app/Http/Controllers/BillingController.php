@@ -10,138 +10,23 @@ use Carbon\Carbon;
 
 class BillingController extends Controller
 {
+    public function index()
+    {
+        $payments = $this->getData()['payments'];
+        $paymentsUpTillThisMonth = $payments->filter(function ($payment) {
+            return Carbon::parse($payment['date'])->isBefore(now()->endOfMonth());
+        });
+        return Inertia::render('Sales/Billing/Index', [
+            'payments_this_month' => $this->getData()['payments_this_month'],
+            'payments' => $paymentsUpTillThisMonth,
+        ]);
+    }
+
     public function calendar(Request $request)
     {
-        $today = Carbon::now();
+        $payments = $this->getData()['payments'];
 
-        $startYear = $today->month >= 5 ? $today->year : $today->year - 1;
-        $periodStart = Carbon::create($startYear, 5, 1)->startOfDay();
-        $periodEnd = $periodStart->copy()->addYear()->subDay();
-
-        $invoices = \App\Models\Invoices::with(['customerRelation', 'subscription'])
-            ->get();
-
-        $previousPayments = $invoices->map(function ($inv) {
-            $subtotal = $inv->subtotal ?? 0;
-            if ($inv->discounts) {
-                $subtotal -= $inv->data[0]['discount_amounts'][0]['amount'] ?? 0;
-            }
-
-            return [
-                'date' => $inv->created->format('Y-m-d'),
-                'amount' => $subtotal,
-                'status' => !empty($inv->status_transitions['paid_at']) ? 'paid' :
-                            (!empty($inv->status_transitions['marked_uncollectible_at']) || !empty($inv->status_transitions['voided_at']) ? 'failed' : 'unpaid'),
-                'customer_id' => $inv->customer ?? 'Unknown',
-                'subscription_id' => $inv->sub_id,
-                'interval' => $inv->payment_interval ?? 'semi-annually',
-                'currency' => $inv->currency ?? 'USD',
-            ];
-        })->filter(fn($payment) => $payment['status'] === 'paid');
-
-        $upcomingPayments = collect([]);
-
-        if ($previousPayments->isNotEmpty()) {
-            $prevMonth = $today->copy()->subMonth();
-            $prevMonthNum = $prevMonth->month;
-            $prevMonthYear = $prevMonth->year;
-            $todayDay = $today->day;
-
-        $remainingPrevMonthPayments = $previousPayments->filter(fn($p) => 
-            Carbon::parse($p['date'])->month === $prevMonthNum &&
-            Carbon::parse($p['date'])->year === $prevMonthYear &&
-            Carbon::parse($p['date'])->day > $todayDay
-        )->values();
-
-
-        foreach ($remainingPrevMonthPayments as $payment) {
-            if ($payment['interval'] !== 'month') {
-                continue;
-            }
-            $day = Carbon::parse($payment['date'])->day;
-            $projectedDate = Carbon::create($today->year, $today->month, min($day, Carbon::create($today->year, $today->month)->daysInMonth()));
-
-            $upcomingPayments->push([
-                'date' => $projectedDate->format('Y-m-d'),
-                'amount' => $payment['amount'],
-                'status' => 'upcoming',
-                'customer_id' => $payment['customer_id'],
-                'subscription_id' => $payment['subscription_id'],
-                'interval' => $payment['interval'],
-                'currency' => $payment['currency'],
-            ]);
-        }
-
-        $currentMonthPayments = $previousPayments->filter(function($p) use ($today, $remainingPrevMonthPayments) {
-            $date = Carbon::parse($p['date']);
-            return $date->month === $today->month && $date->year === $today->year;
-        })->merge($remainingPrevMonthPayments)->values();
-
-
-            $monthIterator = Carbon::create($today->year, $today->month, 1)->addMonth();
-            $endMonth = $periodEnd->copy()->startOfMonth();
-
-            while ($monthIterator->lte($endMonth)) {
-                foreach ($currentMonthPayments as $payment) {
-                    if ($payment['interval'] !== 'month') {
-                        continue;
-                    }
-                    $day = Carbon::parse($payment['date'])->day;
-                    $projectedDate = Carbon::create($monthIterator->year, $monthIterator->month, min($day, $monthIterator->daysInMonth()));
-
-                    $upcomingPayments->push([
-                        'date' => $projectedDate->format('Y-m-d'),
-                        'amount' => $payment['amount'],
-                        'status' => 'upcoming',
-                        'customer_id' => $payment['customer_id'],
-                        'subscription_id' => $payment['subscription_id'],
-                        'interval' => $payment['interval'],
-                        'currency' => $payment['currency'],
-                    ]);
-                }
-                $monthIterator->addMonth();
-            }
-        }
-
-        $yearlyInvoicesNotWithinPeriod = $invoices->filter(function($inv) use ($periodStart, $periodEnd) {
-            $isYearly = isset($inv->payment_interval) && $inv->payment_interval === 'year';
-            if (!$isYearly) return false;
-
-            return $inv->created < $periodStart || $inv->created > $periodEnd;
-        });
-
-        $semiAnnualInvoices = $invoices->filter(function($inv) {
-            return isset($inv->payment_interval) && $inv->payment_interval === 'semi-annually';
-        });
-
-
-        foreach ($semiAnnualInvoices as $inv) {
-            $upcomingPayments->push([
-                'date' => $inv->created->addMonths(6)->format('Y-m-d'),
-                'amount' => $inv->subtotal,
-                'status' => 'upcoming',
-                'customer_id' => $inv->customer,
-                'subscription_id' => $inv->sub_id,
-                'interval' => $inv->payment_interval,
-                'currency' => $inv->currency,
-            ]);
-        }
-
-        //Add 1 year to yearly invoices not within period and add them to upcoming payments
-        foreach ($yearlyInvoicesNotWithinPeriod as $inv) {
-            $upcomingPayments->push([
-                'date' => $inv->created->addYear()->format('Y-m-d'),
-                'amount' => $inv->subtotal,
-                'status' => 'upcoming',
-                'customer_id' => $inv->customer,
-                'subscription_id' => $inv->sub_id,
-                'interval' => $inv->payment_interval,
-                'currency' => $inv->currency,
-            ]);
-        }
-        $payments = $previousPayments->merge($upcomingPayments)->sortBy('date')->values();
-
-        return Inertia::render('Billing/Calendar', [
+        return Inertia::render('Sales/Billing/Calendar', [
             'upcomingPayments' => $payments,
         ]);
     }
@@ -194,9 +79,152 @@ class BillingController extends Controller
             ];
         });
 
-        return Inertia::render('Billing/DayAnalysis', [
+        return Inertia::render('Sales/Billing/DayAnalysis', [
             'date' => $day->toDateString(),
             'payments' => $payments,
         ]);
+    }
+
+    private function getData()
+    {
+        $today = Carbon::now();
+
+        $startYear = $today->month >= 5 ? $today->year : $today->year - 1;
+        $periodStart = Carbon::create($startYear, 5, 1)->startOfDay();
+        $periodEnd = $periodStart->copy()->addYear()->subDay();
+
+        $invoices = \App\Models\Invoices::with(['customerRelation', 'subscription'])
+            ->get();
+
+        $previousPayments = $invoices->map(function ($inv) {
+            $subtotal = $inv->subtotal ?? 0;
+            if ($inv->discounts) {
+                $subtotal -= $inv->data[0]['discount_amounts'][0]['amount'] ?? 0;
+            }
+
+            return [
+                'date' => $inv->created->format('Y-m-d'),
+                'amount' => $subtotal,
+                'status' => !empty($inv->status_transitions['paid_at']) ? 'paid' :
+                            (!empty($inv->status_transitions['marked_uncollectible_at']) || !empty($inv->status_transitions['voided_at']) || empty($inv->status_transitions['finalized_at']) ? 'failed' : 'unpaid'),
+                'customer_id' => $inv->customer ?? 'Unknown',
+                'customer' => $inv->customerRelation,
+                'subscription_id' => $inv->sub_id,
+                'interval' => $inv->payment_interval ?? 'semi-annually',
+                'currency' => $inv->currency ?? 'USD',
+            ];
+        });
+
+        $upcomingPayments = collect([]);
+
+        if ($previousPayments->isNotEmpty()) {
+            $prevMonth = $today->copy()->subMonth();
+            $prevMonthNum = $prevMonth->month;
+            $prevMonthYear = $prevMonth->year;
+            $todayDay = $today->day;
+
+        $remainingPrevMonthPayments = $previousPayments->filter(fn($p) => 
+            Carbon::parse($p['date'])->month === $prevMonthNum &&
+            Carbon::parse($p['date'])->year === $prevMonthYear &&
+            Carbon::parse($p['date'])->day > $todayDay
+        )->values();
+
+
+        foreach ($remainingPrevMonthPayments as $payment) {
+            if ($payment['interval'] !== 'month') {
+                continue;
+            }
+            $day = Carbon::parse($payment['date'])->day;
+            $projectedDate = Carbon::create($today->year, $today->month, min($day, Carbon::create($today->year, $today->month)->daysInMonth()));
+
+            $upcomingPayments->push([
+                'date' => $projectedDate->format('Y-m-d'),
+                'amount' => $payment['amount'],
+                'status' => 'upcoming',
+                'customer_id' => $payment['customer_id'],
+                'customer' => $payment['customer'],
+                'subscription_id' => $payment['subscription_id'],
+                'interval' => $payment['interval'],
+                'currency' => $payment['currency'],
+            ]);
+        }
+
+        $currentMonthPayments = $previousPayments->filter(function($p) use ($today, $remainingPrevMonthPayments) {
+            $date = Carbon::parse($p['date']);
+            return $date->month === $today->month && $date->year === $today->year;
+        })->merge($remainingPrevMonthPayments)->values();
+
+
+            $monthIterator = Carbon::create($today->year, $today->month, 1)->addMonth();
+            $endMonth = $periodEnd->copy()->startOfMonth();
+
+            while ($monthIterator->lte($endMonth)) {
+                foreach ($currentMonthPayments as $payment) {
+                    if ($payment['interval'] !== 'month') {
+                        continue;
+                    }
+                    $day = Carbon::parse($payment['date'])->day;
+                    $projectedDate = Carbon::create($monthIterator->year, $monthIterator->month, min($day, $monthIterator->daysInMonth()));
+
+                    $upcomingPayments->push([
+                        'date' => $projectedDate->format('Y-m-d'),
+                        'amount' => $payment['amount'],
+                        'status' => 'upcoming',
+                        'customer_id' => $payment['customer_id'],
+                        'customer' => $payment['customer'],
+                        'subscription_id' => $payment['subscription_id'],
+                        'interval' => $payment['interval'],
+                        'currency' => $payment['currency'],
+                    ]);
+                }
+                $monthIterator->addMonth();
+            }
+        }
+
+        $yearlyInvoicesNotWithinPeriod = $invoices->filter(function($inv) use ($periodStart, $periodEnd) {
+            $isYearly = isset($inv->payment_interval) && $inv->payment_interval === 'year';
+            if (!$isYearly) return false;
+
+            return $inv->created < $periodStart || $inv->created > $periodEnd;
+        });
+
+        $semiAnnualInvoices = $invoices->filter(function($inv) {
+            return isset($inv->payment_interval) && $inv->payment_interval === 'semi-annually';
+        });
+
+
+        foreach ($semiAnnualInvoices as $inv) {
+            $upcomingPayments->push([
+                'date' => $inv->created->addMonths(6)->format('Y-m-d'),
+                'amount' => $inv->subtotal,
+                'status' => 'upcoming',
+                'customer_id' => $inv->customer,
+                'customer' => $inv->customerRelation,
+                'subscription_id' => $inv->sub_id,
+                'interval' => $inv->payment_interval,
+                'currency' => $inv->currency,
+            ]);
+        }
+
+        //Add 1 year to yearly invoices not within period and add them to upcoming payments
+        foreach ($yearlyInvoicesNotWithinPeriod as $inv) {
+            $upcomingPayments->push([
+                'date' => $inv->created->addYear()->format('Y-m-d'),
+                'amount' => $inv->subtotal,
+                'status' => 'upcoming',
+                'customer_id' => $inv->customer,
+                'customer' => $inv->customerRelation,
+                'subscription_id' => $inv->sub_id,
+                'interval' => $inv->payment_interval,
+                'currency' => $inv->currency,
+            ]);
+        }
+        $payments = $previousPayments->merge($upcomingPayments)->sortBy('date')->values();
+        $paymentsThisMonth = $payments->filter(function($p) use ($today) {
+            $date = Carbon::parse($p['date']);
+            return $date->year === $today->year && $date->month === $today->month;
+        })->values();
+
+        return ['payments' => $payments, 'payments_this_month' => $paymentsThisMonth];
     }
 }

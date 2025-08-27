@@ -12,9 +12,8 @@ class DashboardController extends Controller
     {
         // Get cached data from the command, fallback to generating if not available
         $dashboardData = cache()->get('dashboard_data');
-        
+
         if (!$dashboardData) {
-            // If cache is empty, run the command to populate it
             Artisan::call('app:fetch-stripe-data');
             $dashboardData = cache()->get('dashboard_data', []);
         }

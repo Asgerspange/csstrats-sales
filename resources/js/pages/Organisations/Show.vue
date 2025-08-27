@@ -9,7 +9,7 @@
     import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
     import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger } from "@/components/ui/combobox"
     import { Textarea } from "@/components/ui/textarea";
-    import { CreateContactDialog } from '@/components/contacts';
+    import { CreateContactDialog } from '@/components/sales/contacts';
     import { Check, ChevronsUpDown, Search } from "lucide-vue-next"
     import { cn } from '@/lib/utils';
     const props = defineProps({
@@ -36,8 +36,8 @@
     const agreements = ref([]);
     
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Organisations', href: '/organisations' },
-        { title: props.organisation.name, href: `/organisations/${props.organisation.id}` }
+        { title: 'Organisations', href: '/sales/organisations' },
+        { title: props.organisation.name, href: `/sales/organisations/${props.organisation.id}` }
     ];
 
     const updateCustomer = () => {
@@ -46,7 +46,7 @@
             // Store the original customer ID before making the API call
             const originalCustomerId = originalCustomer?.id;
             
-            fetch(`/organisations/${props.organisation.id}/change-customer`, {
+            fetch(`/sales/organisations/${props.organisation.id}/change-customer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,7 +82,7 @@
             return;
         }
 
-        fetch(`/organisations/${props.organisation.id}/make-primary-contact`, {
+        fetch(`/sales/organisations/${props.organisation.id}/make-primary-contact`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -105,7 +105,7 @@
     };
 
     const removeContact = (contactId: number) => {
-        fetch(`/organisations/${props.organisation.id}/remove-contact`, {
+        fetch(`/sales/organisations/${props.organisation.id}/remove-contact`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -116,7 +116,7 @@
     };
 
     const updateNotes = () => {
-        fetch(`/organisations/${props.organisation.id}/update-notes`, {
+        fetch(`/sales/organisations/${props.organisation.id}/update-notes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
