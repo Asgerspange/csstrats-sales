@@ -43,9 +43,15 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
-        Route::get('users', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index');
-        Route::get('users/{user}', [App\Http\Controllers\UserController::class, 'show'])->name('admin.users.show');
-        Route::post('grant-access', [App\Http\Controllers\UserController::class, 'grantAccess'])->name('admin.grant-access');
+        Route::prefix('users')->group(function () {
+            Route::get('', [App\Http\Controllers\UserController::class, 'index'])->name('admin.users.index');
+            Route::get('{user}', [App\Http\Controllers\UserController::class, 'show'])->name('admin.users.show');
+            Route::post('grant-access', [App\Http\Controllers\UserController::class, 'grantAccess'])->name('admin.grant-access');
+        });
+
+        Route::prefix('tactics')->group(function () {
+            Route::get('', [App\Http\Controllers\TacticController::class, 'index'])->name('admin.tactics.index');
+        });
     });
     
     // Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'sendMassMail'])->name('massmail.index');
