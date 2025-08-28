@@ -113,8 +113,8 @@
                                 const transitions = info.getValue();
                                 if (!transitions) return 'N/A';
 
-                                const status = transitions.finalized_at ? 'Finalized' : 'Pending';
-                                const date = transitions.finalized_at ? new Date(transitions.finalized_at).toLocaleDateString() : 'N/A';
+                                const status = transitions.paid_at ? 'Paid' : 'Pending';
+                                const date = transitions.paid_at ? new Date(transitions.paid_at * 1000).toLocaleDateString() : 'N/A';
                                 return `${status} on ${date}`;
                             },
                         };

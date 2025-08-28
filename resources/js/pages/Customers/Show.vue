@@ -73,7 +73,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             class="p-4 border rounded-lg bg-gray-50"
                         >
                             <div class="flex items-center justify-between">
-                                <p class="font-medium">Plan ID: {{ sub.plan.id }}</p>
+                                <p class="font-medium">Plan: {{ sub.package?.name }}</p>
                                 <span
                                     class="px-2 py-0.5 text-xs font-semibold rounded-full"
                                     :class="sub.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
