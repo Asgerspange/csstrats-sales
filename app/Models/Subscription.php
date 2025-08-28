@@ -15,6 +15,7 @@ class Subscription extends Model
         'plan',
         'items',
         'status',
+        'product_id',
         'current_period_start',
         'current_period_end',
         'coupon',
@@ -32,5 +33,10 @@ class Subscription extends Model
     public function customerRelation()
     {
         return $this->belongsTo(Customer::class, 'customer', 'cus_id');
+    }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'product_id', 'prod_id');
     }
 }

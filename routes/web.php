@@ -31,10 +31,12 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
         Route::post('organisations/{organisation}/remove-contact', [App\Http\Controllers\OrganisationController::class, 'removeContact'])->name('sales.organisations.remove-contact');
         Route::post('organisations/{organisation}/update-notes', [App\Http\Controllers\OrganisationController::class, 'updateNotes'])->name('sales.organisations.update-notes');
 
-        Route::get('billing', [App\Http\Controllers\BillingController::class, 'index'])->name('sales.billing.index');
-        Route::get('billing/calendar', [App\Http\Controllers\BillingController::class, 'calendar'])->name('sales.billing.calendar');
-        Route::get('/billing/date/{date}', [App\Http\Controllers\BillingController::class, 'dayAnalysis'])
-            ->name('sales.billing.day');
+        Route::prefix('billing')->group(function () {
+            Route::get('', [App\Http\Controllers\BillingController::class, 'index'])->name('sales.billing.index');
+            Route::get('calendar', [App\Http\Controllers\BillingController::class, 'calendar'])->name('sales.billing.calendar');
+            Route::get('date/{date}', [App\Http\Controllers\BillingController::class, 'dayAnalysis'])->name('sales.billing.day');
+            Route::get('subscriptions', [App\Http\Controllers\SubscriptionController::class, 'index'])->name('sales.billing.subscriptions.index');
+        });
 
         Route::get('contacts', [App\Http\Controllers\ContactController::class, 'index'])->name('sales.contacts.index');
         Route::post('contacts', [App\Http\Controllers\ContactController::class, 'store'])->name('sales.contacts.store');

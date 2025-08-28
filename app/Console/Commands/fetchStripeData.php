@@ -12,6 +12,8 @@ use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\Charge;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+
 
 class fetchStripeData extends Command
 {
@@ -135,10 +137,12 @@ class fetchStripeData extends Command
 
     private function syncSubscriptions($subscriptions)
     {
-        foreach ($subscriptions as $subscription) {
-            $existing = SubscriptionModel::where('sub_id', $subscription->id)->first();
+        SubscriptionModel::truncate();
 
-            $data = [
+        DB::statement('ALTER TABLE subscriptions AUTO_INCREMENT = 1');
+        foreach ($subscriptions as $subscription) {
+            SubscriptionModel::create([
+                'sub_id' => $subscription->id,
                 'object' => $subscription->object,
                 'currency' => $subscription->currency,
                 'customer' => $subscription->customer,
@@ -146,17 +150,12 @@ class fetchStripeData extends Command
                 'plan' => $subscription->plan,
                 'status' => $subscription->status,
                 'items' => $subscription->items,
+                'product_id' => $subscription->plan?->product,
                 'current_period_start' => $subscription->current_period_start,
                 'current_period_end' => $subscription->current_period_end,
                 'coupon' => $subscription?->discount?->coupon,
                 'created' => $subscription->created
-            ];
-
-            if ($existing) {
-                $existing->update($data);
-            } else {
-                SubscriptionModel::create(array_merge(['sub_id' => $subscription->id], $data));
-            }
+            ]);
         }
     }
 

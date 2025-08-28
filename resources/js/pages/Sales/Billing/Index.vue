@@ -39,15 +39,15 @@
                     <UpcomingPaymentsCard />
                 </div>
             </div>
-            <div class="grid auto-rows-min gap-4 md:grid-cols-4">
-                <div class="relative">
+            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+                <!-- <div class="relative">
                     <Link :href="route('sales.customers.index')" class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm">
                         <div class="flex gap-2 justify-center">
                             <User class="h-6 w-6" />
                             Customers
                         </div>
                     </Link>
-                </div>
+                </div> -->
                 <div class="relative">
                     <Link :href="route('sales.billing.calendar')" class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm">
                         <div class="flex gap-2 justify-center">
@@ -65,7 +65,7 @@
                     </Link>
                 </div>
                 <div class="relative">
-                    <Link :href="route('sales.billing.calendar')" class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm">
+                    <Link :href="route('sales.billing.subscriptions.index')" class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm">
                         <div class="flex gap-2 justify-center">
                             <DollarSignIcon class="h-6 w-6" />
                             Subscriptions
