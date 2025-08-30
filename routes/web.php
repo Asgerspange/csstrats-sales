@@ -51,6 +51,7 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
 
         Route::prefix('tactics')->group(function () {
             Route::get('', [App\Http\Controllers\TacticController::class, 'index'])->name('admin.tactics.index');
+            Route::get('release', [App\Http\Controllers\TacticController::class, 'release'])->name('admin.tactics.release');
         });
     });
     

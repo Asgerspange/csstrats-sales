@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
-    import { UserTable, UserFilters } from '@/components/users';
+    import { UserTable, UserFilters } from '@/components/admin/users';
     import { ref } from 'vue';
 
     import { type BreadcrumbItem } from '@/types';

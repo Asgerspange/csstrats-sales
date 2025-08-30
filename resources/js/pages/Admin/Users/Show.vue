@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { GrantAccessDialog } from '@/components/users';
+import { GrantAccessDialog } from '@/components/admin/users';
 
 const props = defineProps<{
     user: any;

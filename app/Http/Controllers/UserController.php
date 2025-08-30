@@ -23,7 +23,7 @@ class UserController extends Controller
                 });
         });
 
-        return Inertia::render('Users/Index', [
+        return Inertia::render('Admin/Users/Index', [
             'users' => $users
         ]);
     }
@@ -32,7 +32,7 @@ class UserController extends Controller
     {
         $user->load(['grantedAccess.grantedBy']);
 
-        return Inertia::render('Users/Show', [
+        return Inertia::render('Admin/Users/Show', [
             'user' => $user
         ]);
     }
