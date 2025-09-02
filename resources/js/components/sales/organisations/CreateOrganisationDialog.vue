@@ -39,7 +39,7 @@ const createOrganisation = async () => {
     };
 
     try {
-        const response = await fetch('organisations', {
+        const response = await fetch('/sales/organisations', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

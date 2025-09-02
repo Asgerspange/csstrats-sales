@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, User, Users, Contact, Package, Mail, Receipt } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, User, Users, Contact, Package, Mail, Receipt, ChartLine, BadgePlus, Rocket } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { ref, onMounted } from 'vue';
 
@@ -27,6 +27,28 @@ const adminNavItems: NavItem[] = [
         title: 'Users',
         href: '/admin/users',
         icon: Users,
+    },
+    {
+        title: 'Tactics',
+        icon: Folder,
+        isFolder: true,
+        children: [
+            {
+                title: 'Create Tactic',
+                href: '/admin/tactics/create',
+                icon: BadgePlus
+            },
+            {
+                title: 'Statistics',
+                href: '/admin/tactics',
+                icon: ChartLine,
+            },
+            {
+                title: 'Release',
+                href: '/admin/tactics/release',
+                icon: Rocket
+            }
+        ],
     }
 ];
 
