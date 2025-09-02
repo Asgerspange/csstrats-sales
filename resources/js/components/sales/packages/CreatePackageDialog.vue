@@ -57,7 +57,7 @@ const createPackage = async () => {
         ]
     };
 
-    const response = await fetch('/packages', {
+    const response = await fetch('/sales/packages', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
