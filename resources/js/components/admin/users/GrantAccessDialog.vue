@@ -45,7 +45,7 @@ const grantAccess = async () => {
     isGranting.value = true;
     const formattedAccess = { ...access.value };
     try {
-        const response = await fetch('/admin/grant-access', {
+        const response = await fetch('/admin/users/grant-access', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const grantAccess = async () => {
             }),
         });
 
-        if (response.status === 201) {
+        if (response.status === 200 || response.status === 301 || response.status === 302 || response.status === 303) {
             const data = await response.json();
             toast({
                 title: 'Organisation Created',
