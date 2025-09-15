@@ -63,8 +63,8 @@ const grantAccess = async () => {
         if (response.status === 200 || response.status === 301 || response.status === 302 || response.status === 303) {
             const data = await response.json();
             toast({
-                title: 'Organisation Created',
-                description: `${data.organisation.name} has been created successfully.`,
+                title: 'Access Granted',
+                description: `${data.user.name} has been granted access successfully.`,
                 variant: 'success'
             });
 
