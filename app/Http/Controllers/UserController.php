@@ -49,6 +49,11 @@ class UserController extends Controller
         ]);
 
         $user = User::findOrFail($request->input('user_id'));
+
+        // Delete existing granted access if exists
+        $user->grantedAccess()->delete();
+
+        // Create new granted access
         $user->grantedAccess()->create([
             'granted_by' => auth()->id(),
             'granted_at' => now(),
