@@ -2,23 +2,23 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/vue3';
-import {
-    RevenueCard,
-    SubscriptionCard,
-    SalesCard,
-    MonthlyRevenueCard,
-    RevenueGraph,
-    TransactionTimeline,
-    PackageTable
-} from '@/components/dashboard';
+
 import { TacticCreateChart, TacticBreakdown } from '@/components/admin/tactics';
 const { props } = usePage();
 console.log('Dashboard props:', props);
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Admin',
+        href: '/admin',
     },
+    {
+        title: 'Tactics',
+        href: '/admin/tactics',
+    },
+    {
+        title: 'Statistics',
+        href: '/admin/tactics/statistics',
+    }
 ];
 </script>
 

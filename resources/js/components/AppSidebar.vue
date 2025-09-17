@@ -40,7 +40,7 @@ const adminNavItems: NavItem[] = [
             },
             {
                 title: 'Statistics',
-                href: '/admin/tactics',
+                href: '/admin/tactics/statistics',
                 icon: ChartLine,
             },
             {

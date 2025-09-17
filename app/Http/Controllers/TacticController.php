@@ -9,9 +9,9 @@ use Carbon\Carbon;
 
 class TacticController extends Controller
 {
-    public function index()
+    public function statistics()
     {
-        return Inertia::render('Admin/Tactics/Index', [
+        return Inertia::render('Admin/Tactics/Statistics', [
             'tactic_graph_data' => $this->buildTacticData(),
             'tactics' => Tactic::all()
         ]);
