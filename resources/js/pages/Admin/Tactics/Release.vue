@@ -16,10 +16,6 @@
     console.log(props.releasedTactics[0]);
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Admin',
-            href: '/admin',
-        },
-        {
             title: 'Tactics',
             href: '/admin/tactics',
         },

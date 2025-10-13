@@ -53,6 +53,11 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
             Route::get('statistics', [App\Http\Controllers\TacticController::class, 'statistics'])->name('admin.tactics.statistics');
             Route::get('release', [App\Http\Controllers\TacticController::class, 'release'])->name('admin.tactics.release');
         });
+
+        Route::prefix('demos')->group(function () {
+            Route::get('', [App\Http\Controllers\DemoController::class, 'index'])->name('admin.demos.index');
+            Route::get('statistics', [App\Http\Controllers\DemoController::class, 'statistics'])->name('admin.demos.statistics');
+        });
     });
     
     // Route::get('massSendMail', [App\Http\Controllers\MailController::class, 'sendMassMail'])->name('massmail.index');

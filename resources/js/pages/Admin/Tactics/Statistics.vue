@@ -8,10 +8,6 @@ const { props } = usePage();
 console.log('Dashboard props:', props);
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Admin',
-        href: '/admin',
-    },
-    {
         title: 'Tactics',
         href: '/admin/tactics',
     },
