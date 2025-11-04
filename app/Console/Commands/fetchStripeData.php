@@ -245,6 +245,9 @@ class fetchStripeData extends Command
         $exchangeRate = $this->getExchangeRate(strtoupper($primaryCurrency), strtoupper($targetCurrency));
         $allInvoices->each(function ($invoice) {
             if ($invoice->discounts) {
+                if ($invoice->data[0]['discount_amounts'][0]['discount'] == 'di_1SPQ67EDh9RJGTHcP5csja3Y') {
+                    $invoice->subtotal = $invoice->subtotal;
+                }
                 $invoice->subtotal = $invoice->subtotal - ($invoice->data[0]['discount_amounts'][0]['amount'] ?? 0);
             }
             $invoice->status = $invoice->status_transitions['paid_at'] ? 'succeeded' : 'failed';
@@ -297,7 +300,7 @@ class fetchStripeData extends Command
             ];
         }
 
-        // Get recent sales
+        
         $recentSales = $paidInvoicesThisMonth
             ->sortByDesc('created')
             ->take(10)
