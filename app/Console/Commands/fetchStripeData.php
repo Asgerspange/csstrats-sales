@@ -3,17 +3,22 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Customer as CustomerModel;
-use App\Models\Subscription as SubscriptionModel;
-use App\Models\Invoices as InvoicesModel;
+use App\Models\{
+    Customer as CustomerModel,
+    Subscription as SubscriptionModel,
+    Invoices as InvoicesModel,
+    Coupon as CouponModel
+};
 use Stripe\Stripe;
 use Stripe\Subscription;
 use Stripe\Customer;
 use Stripe\Invoice;
-use Stripe\Charge;
+use Stripe\Discount;
+use Stripe\Coupon;
+use Stripe\PromotionCode;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Laravel\Cashier\Payment;
 
 class fetchStripeData extends Command
 {
@@ -27,17 +32,18 @@ class fetchStripeData extends Command
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        cache()->flush();
+        // cache()->flush();
         // Load exchange rates once
         $this->loadExchangeRates();
         
         if (!$this->option('skip-sync')) {
-            $this->getCustomers();
-            $this->getSubscriptions();
+            // $this->getCoupons();
+            // $this->getCustomers();
+            // $this->getSubscriptions();
             $this->getInvoices();
         }
         
-        $this->getDashboardData();
+        // $this->getDashboardData();
         $this->info('Dashboard data cached successfully.');
     }
 
@@ -61,6 +67,30 @@ class fetchStripeData extends Command
         
         $this->syncCustomers($allCustomers);
         $this->info('Customers synced successfully.');
+    }
+
+    private function getCoupons()
+    {
+        $allCoupons = $this->fetchAllStripeData(Coupon::class);
+        dd($allCoupons[0]->toArray());
+        $allPromotionCodes = $this->fetchAllStripeData(PromotionCode::class);
+        foreach ($allPromotionCodes as $promotionCode) {
+            if (isset($promotionCode->coupon->id)) {
+                foreach ($allCoupons as &$coupon) {
+                    if ($coupon->id === $promotionCode->coupon->id) {
+                        $coupon->promotion_codes = $coupon->promotion_codes ?? [];
+                        unset($promotionCode->coupon);
+                        $coupon->promotion_codes[] = $promotionCode;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->info('Total coupons fetched: ' . count($allCoupons));
+
+        $this->syncCoupons($allCoupons);
+        $this->info('Coupons synced successfully.');
     }
 
     private function getSubscriptions()
@@ -157,6 +187,34 @@ class fetchStripeData extends Command
                 'created' => $subscription->created
             ]);
         }
+    }
+
+    private function syncCoupons($coupons)
+    {
+        foreach ($coupons as $coupon) {
+            $existing = CouponModel::where('coupon_id', $coupon->id)->first();
+
+            $data = [
+                'name' => $coupon->name,
+                'amount_off' => $coupon->amount_off,
+                'percent_off' => $coupon->percent_off,
+                'currency' => $coupon->currency,
+                'duration' => $coupon->duration,
+                'duration_in_months' => $coupon->duration_in_months,
+                'valid' => $coupon->valid,
+                'redeem_by' => $coupon->redeem_by,
+                'max_redemptions' => $coupon->max_redemptions,
+                'times_redeemed' => $coupon->times_redeemed,
+                'promotion_codes' => isset($coupon->promotion_codes) ? json_encode($coupon->promotion_codes) : null,
+            ];
+
+            if ($existing) {
+                $existing->update($data);
+            } else {
+                CouponModel::create(array_merge(['coupon_id' => $coupon->id], $data));
+            }
+        }
+
     }
 
     private function syncInvoices($invoices)

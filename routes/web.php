@@ -15,6 +15,16 @@ Route::middleware([AuthenticateAdminMiddleware::class])->group(function () {
     Route::prefix('sales')->group(function () {
         Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('sales.index');
 
+        Route::resource('affiliates', App\Http\Controllers\AffiliateController::class)->names([
+            'index' => 'sales.affiliates.index',
+            'create' => 'sales.affiliates.create',
+            'store' => 'sales.affiliates.store',
+            'show' => 'sales.affiliates.show',
+            'edit' => 'sales.affiliates.edit',
+            'update' => 'sales.affiliates.update',
+            'destroy' => 'sales.affiliates.destroy',
+        ]);
+
         Route::get('customers', [App\Http\Controllers\CustomerController::class, 'index'])->name('sales.customers.index');
         Route::get('customers/{customer}', [App\Http\Controllers\CustomerController::class, 'show'])->name('sales.customers.show');
         Route::get('packages', [App\Http\Controllers\PackageController::class, 'index'])->name('sales.packages.index');
