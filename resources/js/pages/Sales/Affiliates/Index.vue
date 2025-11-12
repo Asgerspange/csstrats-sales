@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
     import { ref } from 'vue';
+    import { router } from '@inertiajs/vue3';
     import DataTable from '@/volt/DataTable.vue';
     import Column from 'primevue/column';
     import Button from '@/volt/Button.vue';
@@ -11,7 +12,7 @@
         affiliates: Array<{
             id: number;
             name: string;
-            promocode: string;
+            coupon_relation: object;
             email: string;
             bank_account: string | null;
             commission_rate: number;
@@ -24,6 +25,8 @@
             access_token: string;
         }>;
     }>();
+
+    console.log(props.affiliates)
 
     const affiliates = ref(props.affiliates || []);
 
@@ -53,6 +56,11 @@
             });
     }
 
+    function onRowSelect(event: any) {
+        console.log('e')
+        const affiliateId = event.data.id;
+        router.visit(`/sales/affiliates/${affiliateId}`);
+    }
 </script>
 
 <template>
@@ -62,11 +70,16 @@
                 <h1 class="text-2xl font-bold">Affiliates</h1>
                 <CreateAffiliateDialog />
             </div>
-            <DataTable :value="affiliates" class="w-full">
+            <DataTable :value="affiliates" class="w-full" selectionMode="single" @rowSelect="onRowSelect">
                 <Column field="name" header="Name" sortable></Column>
-                <Column field="promocode" header="Promocode" sortable></Column>
+                <Column 
+                    header="Code" 
+                    sortable>
+                    <template #body="{ data: affiliate }">
+                        {{ affiliate.coupon_relation?.code ? affiliate.coupon_relation.code + ' (P)' : affiliate.coupon + ' (C)' || 'N/A' }}
+                    </template>
+                </Column>
                 <Column field="email" header="Email" sortable></Column>
-                <Column field="bank_account" header="Bank Account" sortable></Column>
                 <Column field="commission_rate" header="Commission Rate (%)" sortable></Column>
                 <Column field="balance" header="Balance" sortable></Column>
                 <Column field="min_payout_amount" header="Min Payout Amount" sortable></Column>

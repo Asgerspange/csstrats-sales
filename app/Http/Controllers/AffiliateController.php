@@ -39,10 +39,44 @@ class AffiliateController extends Controller
         return redirect()->route('sales.affiliates.index')->with('success', 'Affiliate created successfully.');
     }
 
+    public function show(Affiliate $affiliate)
+    {
+        $invoices = $affiliate->invoices()->get();
+        $invoices->each(function ($invoice) use ($affiliate) {
+            unset($invoice->customer);
+            unset($invoice->invoice_id);
+            unset($invoice->invoice_pdf);
+            unset($invoice->data[0]['plan']);
+            $invoice->totalAfterFeesAndVat = $this->calculateTotalAfterFees($invoice->subtotal_excluding_tax, $invoice->data[0]['discount_amounts'][0]['amount'], $affiliate->commission_rate);
+        });
+        dd($invoices[0]->toArray());
+
+        return Inertia::render('Sales/Affiliates/Show', [
+            'affiliate' => $affiliate->load('invoices'),
+        ]);
+    }
+
     public function destroy(Affiliate $affiliate)
     {
         $affiliate->delete();
 
         return redirect()->route('sales.affiliates.index')->with('success', 'Affiliate deleted successfully.');
+    }
+    
+    private function calculateTotalAfterFees($subtotalExclTax, $discountAmount, $commissionRate)
+    {
+        if ($discountAmount == $subtotalExclTax) {
+            return 0.00;
+        }
+
+        $stripeFee = 0.04;
+        $additionalStripeFeeEur = 1.8 / 7.47;
+        $feesEur = ($subtotalExclTax * $stripeFee + $additionalStripeFeeEur) / 100;
+        $vat = 0.2;
+
+
+        $total = $subtotalExclTax / 100 * (1 - $vat) - $feesEur;
+
+        return round($total, 2);
     }
 }

@@ -13,7 +13,7 @@ class Affiliate extends Model
 
     protected $fillable = [
         'name',
-        'promocode',
+        'coupon',
         'email',
         'bank_account',
         'iban',
@@ -38,4 +38,18 @@ class Affiliate extends Model
     protected $hidden = [
         'access_token',
     ];
+
+    protected $appends = [
+        'coupon_relation'
+    ];
+
+    public function getCouponRelationAttribute()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon', 'code');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class, 'coupon', 'coupon');
+    }
 }
