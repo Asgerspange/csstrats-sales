@@ -34,7 +34,7 @@ class fetchStripeData extends Command
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        // cache()->flush();
+        cache()->flush();
         // Load exchange rates once
         $this->loadExchangeRates();
         
@@ -45,7 +45,7 @@ class fetchStripeData extends Command
             $this->getInvoices();
         }
         
-        // $this->getDashboardData();
+        $this->getDashboardData();
         $this->info('Dashboard data cached successfully.');
     }
 
