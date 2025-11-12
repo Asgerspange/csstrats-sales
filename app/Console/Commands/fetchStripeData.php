@@ -24,6 +24,8 @@ class fetchStripeData extends Command
 
     public function handle()
     {
+        ini_set('max_execution_time', 3000);
+
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
 
