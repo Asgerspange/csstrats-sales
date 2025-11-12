@@ -14,6 +14,7 @@ class Invoices extends Model
         'currency',
         'customer',
         'discounts',
+        'coupon',
         'invoice_pdf',
         'data',
         'sub_id',
@@ -40,5 +41,10 @@ class Invoices extends Model
     public function subscription()
     {
         return $this->belongsTo(Subscription::class, 'sub_id', 'sub_id');
+    }
+    
+    public function couponRelation()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon', 'coupon_id');
     }
 }
