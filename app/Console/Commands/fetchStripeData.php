@@ -29,6 +29,8 @@ class fetchStripeData extends Command
 
     public function handle()
     {
+        ini_set('max_execution_time', 3000);
+
         \Log::info('Fetching Stripe data...');
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -37,9 +39,9 @@ class fetchStripeData extends Command
         $this->loadExchangeRates();
         
         if (!$this->option('skip-sync')) {
-            // $this->getCoupons();
-            // $this->getCustomers();
-            // $this->getSubscriptions();
+            $this->getCoupons();
+            $this->getCustomers();
+            $this->getSubscriptions();
             $this->getInvoices();
         }
         
@@ -72,7 +74,6 @@ class fetchStripeData extends Command
     private function getCoupons()
     {
         $allCoupons = $this->fetchAllStripeData(Coupon::class);
-        dd($allCoupons[0]->toArray());
         $allPromotionCodes = $this->fetchAllStripeData(PromotionCode::class);
         foreach ($allPromotionCodes as $promotionCode) {
             if (isset($promotionCode->coupon->id)) {
@@ -128,7 +129,7 @@ class fetchStripeData extends Command
             
             $response = $stripeClass::all($params);
             $allData = array_merge($allData, $response->data);
-            
+
             $hasMore = $response->has_more;
             if ($hasMore && !empty($response->data)) {
                 $startingAfter = end($response->data)->id;
@@ -263,6 +264,7 @@ class fetchStripeData extends Command
                 'currency' => $invoice->currency,
                 'customer' => $invoice->customer,
                 'discounts' => $invoice->discounts,
+                'coupon' => $invoice?->discount?->coupon?->id ?? null,
                 'invoice_pdf' => $invoice->invoice_pdf,
                 'data' => $invoice->lines['data'],
                 'sub_id' => $invoice->subscription ?? null,
