@@ -32,10 +32,7 @@ class fetchStripeData extends Command
         $this->loadExchangeRates();
         
         if (!$this->option('skip-sync')) {
-<<<<<<< Updated upstream
-=======
             $this->getCoupons();
->>>>>>> Stashed changes
             $this->getCustomers();
             $this->getSubscriptions();
             $this->getInvoices();
@@ -67,8 +64,6 @@ class fetchStripeData extends Command
         $this->info('Customers synced successfully.');
     }
 
-<<<<<<< Updated upstream
-=======
     private function getCoupons()
     {
         $allCoupons = $this->fetchAllStripeData(Coupon::class);
@@ -93,7 +88,6 @@ class fetchStripeData extends Command
         $this->info('Coupons synced successfully.');
     }
 
->>>>>>> Stashed changes
     private function getSubscriptions()
     {
         $this->info('Fetching subscriptions...');
