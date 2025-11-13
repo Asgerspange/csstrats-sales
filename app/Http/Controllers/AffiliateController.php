@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
+use App\Models\Invoices;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AffiliateController extends Controller
 {
+    private $exchangeRates = [];
     public function index(Request $request)
     {
         return Inertia::render('Sales/Affiliates/Index', [
@@ -41,18 +43,33 @@ class AffiliateController extends Controller
 
     public function show(Affiliate $affiliate)
     {
-        $invoices = $affiliate->invoices()->get();
-        $invoices->each(function ($invoice) use ($affiliate) {
-            unset($invoice->customer);
-            unset($invoice->invoice_id);
-            unset($invoice->invoice_pdf);
-            unset($invoice->data[0]['plan']);
-            $invoice->totalAfterFeesAndVat = $this->calculateTotalAfterFees($invoice->subtotal_excluding_tax, $invoice->data[0]['discount_amounts'][0]['amount'], $affiliate->commission_rate);
-        });
-        dd($invoices[0]->toArray());
+        $this->loadExchangeRates();
+
+        $invoices = Invoices::get();
+        $couponInvoices = $invoices->where('coupon', $affiliate->coupon);
+        $allCustomers = $couponInvoices->pluck('customer')->unique();
+        
+        $totalInvoices = $couponInvoices;
+        foreach ($invoices as $invoice) {
+            if ($invoice->customer && $allCustomers->contains($invoice->customer)) {
+                $totalInvoices->push($invoice);
+            }
+        }
+
+        $totalInvoices = $totalInvoices->map(function ($invoice) use ($affiliate) {
+            $discountAmount = isset($invoice->data[0]['discount_amounts'][0]['amount']) ? $invoice->data[0]['discount_amounts'][0]['amount'] : null;
+            return [
+                'id' => $invoice->id,
+                'totalAfterFeesAndVat' => $this->calculateTotalAfterFees($invoice->subtotal_excluding_tax, $discountAmount, $affiliate->commission_rate),
+                'subtotal_excluding_tax' => $invoice->subtotal_excluding_tax * ($this->exchangeRates['EUR']),
+                'coupon' => $invoice->coupon,
+                'created_at' => $invoice->created_at,
+            ];
+        })->toArray();
 
         return Inertia::render('Sales/Affiliates/Show', [
-            'affiliate' => $affiliate->load('invoices'),
+            'affiliate' => $affiliate,
+            'invoices' => $totalInvoices,
         ]);
     }
 
@@ -70,13 +87,25 @@ class AffiliateController extends Controller
         }
 
         $stripeFee = 0.04;
-        $additionalStripeFeeEur = 1.8 / 7.47;
+        $additionalStripeFeeEur = 1.8 / $this->exchangeRates['EUR'];
         $feesEur = ($subtotalExclTax * $stripeFee + $additionalStripeFeeEur) / 100;
         $vat = 0.2;
 
 
-        $total = $subtotalExclTax / 100 * (1 - $vat) - $feesEur;
+        $total = $subtotalExclTax * (1 - $vat) - $feesEur;
+        $totalDkk = $total * ($this->exchangeRates['EUR']);
 
-        return round($total, 2);
+        return round($totalDkk, 2);
+    }
+
+    private function loadExchangeRates()
+    {
+        $path = storage_path('app/private/currency_rates.json');
+        
+        if (file_exists($path)) {
+            $this->exchangeRates = json_decode(file_get_contents($path), true);
+        } else {
+            $this->exchangeRates = [];
+        }
     }
 }
