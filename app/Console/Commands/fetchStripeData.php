@@ -206,7 +206,7 @@ class fetchStripeData extends Command
                 'redeem_by' => $coupon->redeem_by,
                 'max_redemptions' => $coupon->max_redemptions,
                 'times_redeemed' => $coupon->times_redeemed,
-                'promotion_codes' => isset($coupon->promotion_codes) ? json_encode($coupon->promotion_codes) : null,
+                'promotion_codes' => isset($coupon->promotion_codes) ? $coupon->promotion_codes : null,
             ];
 
             if ($existing) {

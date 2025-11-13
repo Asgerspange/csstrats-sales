@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Affiliate;
-use App\Models\Invoices;
+use App\Models\{
+    Affiliate,
+    Coupon,
+    Invoices
+};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,26 +17,23 @@ class AffiliateController extends Controller
     {
         return Inertia::render('Sales/Affiliates/Index', [
             'affiliates' => Affiliate::all(),
+            'coupons' => Coupon::all(),
         ]);
     }
 
     public function store(Request $request)
     {
-        // Validate and store the affiliate data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:affiliates,email',
             'bank_account' => 'nullable|string|max:255',
             'iban' => 'nullable|string|max:34',
-            'promocode.code' => 'required|string|max:50',
-            'promocode.discount_percentage' => 'required|numeric|min:0|max:100',
+            'coupon' => 'required|string|exists:coupons,coupon_id',
             'access_token' => 'required|string|max:255',
             'commission_rate' => 'required|numeric|min:0|max:100',
             'min_payout_amount' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
         ]);
-
-        $validated['promocode'] = $validated['promocode']['code'];
 
         // Create the affiliate (assuming an Affiliate model exists)
         Affiliate::create($validated);

@@ -99,6 +99,11 @@ const salesNavItems: NavItem[] = [
         title: 'Billing',
         href: '/sales/billing',
         icon: Receipt,
+    },
+    {
+        title: 'Affiliates',
+        href: '/sales/affiliates',
+        icon: BadgePlus,
     }
 ]
 

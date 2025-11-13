@@ -24,9 +24,10 @@
             last_update: string;
             access_token: string;
         }>;
+        coupons: any[];
     }>();
 
-    console.log(props.affiliates)
+    console.log(props.affiliates, props.coupons);
 
     const affiliates = ref(props.affiliates || []);
 

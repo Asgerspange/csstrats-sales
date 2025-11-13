@@ -1,7 +1,7 @@
 
 <template>
     <div class="card flex justify-center">
-        <Button label="Show" @click="visible = true" />
+        <Button label="Create Affiliate" @click="visible = true" />
 
         <Dialog v-model:visible="visible" modal header="Create Affiliate" class="w-[600px]">
             <Stepper value="1">
@@ -20,11 +20,11 @@
                                 </FloatLabel>
                             </div>
                             <FloatLabel>
-                                <label for="bank_account">Bank Account</label>
+                                <label for="bank_account">Bank Account <small>Not Required</small></label>
                                 <InputText v-model="affiliate.bank_account" id="bank_account" class="w-full" />
                             </FloatLabel>
                             <FloatLabel>
-                                <label for="iban">IBAN</label>
+                                <label for="iban">IBAN <small>Not Required</small></label>
                                 <InputText v-model="affiliate.iban" id="iban" class="w-full" />
                             </FloatLabel>
                             <div class="flex justify-end">
@@ -34,16 +34,15 @@
                     </StepPanel>
                 </StepItem>
                 <StepItem value="2">
-                    <Step>Promocode Details</Step>
+                    <Step>Coupon Details</Step>
                     <StepPanel v-slot="{ activateCallback }">
                         <div class="flex flex-col gap-4">
                             <FloatLabel>
-                                <label for="promocode_code">Promocode</label>
-                                <InputText v-model="affiliate.promocode.code" id="promocode_code" class="w-full" />
-                            </FloatLabel>
-                            <FloatLabel>
-                                <label for="discount_percentage">Discount Percentage</label>
-                                <InputText v-model="affiliate.promocode.discount_percentage" id="discount_percentage" type="number" class="w-full" />
+                                <label for="coupon">Coupon</label>
+                                <Select v-model="affiliate.coupon" id="coupon" class="w-full" 
+                                    :optionLabel="option => option.coupon_id + ' - ' + (option.name || 'No Promo Code')"
+                                    :optionValue="option => option.coupon_id"
+                                    :options="props.coupons" filter />
                             </FloatLabel>
                             <div class="flex justify-between">
                                 <SecondaryButton @click="activateCallback('1')">Back</SecondaryButton>
@@ -90,23 +89,21 @@ import SecondaryButton from '@/volt/SecondaryButton.vue';
 import Dialog from '@/volt/Dialog.vue';
 import InputText from '@/volt/InputText.vue';
 import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import Stepper from '@/volt/Stepper.vue';
 import Step from '@/volt/Step.vue';
 import StepItem from '@/volt/StepItem.vue';
 import StepPanel from '@/volt/StepPanel.vue';
 import FloatLabel from 'primevue/floatlabel';
+import Select from '@/volt/Select.vue';
+const page = usePage<any>();
+const props = page.props
 const affiliate = ref({
     name: '',
     email: '',
     bank_account: '',
     iban: '',
-    promocode: {
-        code: '',
-        discount_percentage: 0,
-        recurring: false,
-        valid_packages: [],
-    },
-
+    coupon: null,
     commission_rate: 0,
     min_payout_amount: 0,
     status: 'active',
